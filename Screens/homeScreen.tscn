@@ -1,3 +1,5 @@
 [gd_scene format=3 uid="uid://cn0selg6r8vxn"]
+[ext_resource type="Script" uid="uid://AjVidp0c8FIQ" path="res://Scripts/homeScreen.gd" id="1_AjVid"]
 
 [node name="HomeScreen" type="Node2D"]
+script = ExtResource("1_AjVid")
