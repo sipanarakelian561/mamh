@@ -1,0 +1,3 @@
+[gd_scene format=3 uid="uid://bd8sd4hud5go4"]
+
+[node name="LoginScreen" type="Node2D"]
