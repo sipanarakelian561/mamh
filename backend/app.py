@@ -1,13 +1,16 @@
-from flask import Flask
+from fastapi import FastAPI
+from app.core.config import settings
+from app.api.v1.api import api_router
+from app.db.init_db import init_db
 
-# Create a Flask application instance
-app = Flask(__name__)
+app = FastAPI(title=settings.APP_NAME)
 
-# Define a route for the homepage ('/')
-@app.route('/')
-def hello_world():
-    return 'Hello, World! This is my first Flask app.'
+@app.on_event("startup")
+def on_startup():
+    init_db()
 
-# Run the application if the script is executed directly
-if __name__ == '__main__':
-    app.run(debug=True)
+app.include_router(api_router, prefix="/api/v1")
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
