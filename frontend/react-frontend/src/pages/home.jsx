@@ -12,6 +12,7 @@ export default function Home() {
 
         <div className="flex flex-col gap-4">
           <button
+            onClick={() => navigate("/student/play")}
             className="rounded-xl px-8 py-4 text-lg font-semibold border border-blue-300 text-black hover:bg-blue-500 hover:text-white transition"
           >
             Start Game

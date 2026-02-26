@@ -6,7 +6,7 @@ export function AuthProvider({ children }) {
   const DEV_MODE = true; // set false when backend is ready
 
   // Mock test accounts for dev mode
-  const MOCK_ACCOUNTS = {
+  const DEFAULT_MOCK_ACCOUNTS = {
     "teacher@test.com": {
       password: "password",
       user: {
@@ -28,6 +28,17 @@ export function AuthProvider({ children }) {
       },
     },
   };
+  const DEV_ACCOUNTS_STORAGE_KEY = "dev_accounts";
+
+  function getDevAccounts() {
+    try {
+      const raw = localStorage.getItem(DEV_ACCOUNTS_STORAGE_KEY);
+      const stored = raw ? JSON.parse(raw) : {};
+      return { ...DEFAULT_MOCK_ACCOUNTS, ...stored };
+    } catch {
+      return { ...DEFAULT_MOCK_ACCOUNTS };
+    }
+  }
 
   const [token, setToken] = useState(() =>
     localStorage.getItem("token") || ""
@@ -36,6 +47,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => null);
 
   const [loading, setLoading] = useState(false);
+  const [devAccounts, setDevAccounts] = useState(() => getDevAccounts());
 
   async function loadMe(tkn) {
     if (!tkn) {
@@ -62,7 +74,7 @@ export function AuthProvider({ children }) {
   async function login(email, password) {
     if (DEV_MODE) {
       // Dev mode: check against mock accounts
-      const account = MOCK_ACCOUNTS[email.toLowerCase()];
+      const account = devAccounts[email.toLowerCase()];
       
       if (!account || account.password !== password) {
         throw new Error("Invalid email or password. Use teacher@test.com or student@test.com with password 'password'");
@@ -91,8 +103,40 @@ export function AuthProvider({ children }) {
 
   async function register({ email, password, role }) {
     if (DEV_MODE) {
-      // Dev mode: registration not needed, use mock accounts instead
-      throw new Error("Registration disabled in dev mode. Please use: teacher@test.com or student@test.com with password 'password'");
+      const normalizedEmail = email.toLowerCase().trim();
+      if (devAccounts[normalizedEmail]) {
+        throw new Error("An account with this email already exists.");
+      }
+
+      const nextId =
+        Math.max(...Object.values(devAccounts).map((item) => item.user.id), 0) +
+        1;
+      const firstName = role === "teacher" ? "New" : "Demo";
+      const lastName = role === "teacher" ? "Teacher" : "Student";
+
+      const newAccount = {
+        password,
+        user: {
+          id: nextId,
+          first_name: firstName,
+          last_name: lastName,
+          email: normalizedEmail,
+          role,
+        },
+      };
+
+      const nextAccounts = {
+        ...devAccounts,
+        [normalizedEmail]: newAccount,
+      };
+
+      setDevAccounts(nextAccounts);
+      localStorage.setItem(
+        DEV_ACCOUNTS_STORAGE_KEY,
+        JSON.stringify(nextAccounts)
+      );
+
+      return login(normalizedEmail, password);
     }
 
     // Production mode: use actual API

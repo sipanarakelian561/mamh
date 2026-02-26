@@ -52,6 +52,12 @@ export default function LogIn() {
 			> 
 				Return 
 			</button>
+			<button
+				className="absolute top-4 right-4 px-4 py-2 rounded-xl border border-blue-300 hover:bg-blue-500 hover:text-white transition"
+				onClick={() => navigate("/register")}
+			>
+				Create Account
+			</button>
 			<form onSubmit={HandleSubmit} className="flex flex-col gap-4 items-center w-full max-w-md">
 				<h1 className="text-4xl font-extrabold pb-2"> Log in </h1>
 				
