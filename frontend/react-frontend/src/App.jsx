@@ -5,6 +5,9 @@ import Login from "./pages/login.jsx";
 import Register from "./pages/register.jsx";
 import "./App.css";
 
+import ForgotPassword from "./pages/ForgotPassword.jsx";
+import VerifyCode from "./pages/VerifyCode.jsx";
+
 import { AuthProvider } from "./auth/AuthContext.jsx";
 import ProtectedRoute from "./auth/ProtectedRoute.jsx";
 import RoleRoute from "./auth/RoleRoute.jsx";
@@ -31,6 +34,8 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/verify-code" element={<VerifyCode />} />
 
             <Route element={<ProtectedRoute />}>
               <Route element={<RoleRoute role="student" />}>
