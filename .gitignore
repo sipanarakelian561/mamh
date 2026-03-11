@@ -2,10 +2,3 @@
 .godot/
 /android/
 .vscode/
-
-# Python backend ignores
-Backend/.venv/
-Backend/app.db
-Backend/.env
-__pycache__/
-*.pyc
