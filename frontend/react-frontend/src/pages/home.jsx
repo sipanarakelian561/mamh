@@ -1,36 +1,32 @@
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/UseAuth";
+
 export default function Home() {
-    return (
-        <main className="min-h-[100svh] flex items-center justify-center bg-gradient-to-b from-white to-pink-50">
-      <section className="text-center">
-        <h1 className="mb-10 text-5xl font-extrabold text-pink-900">
-          Main Menu
-        </h1>
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
-        <div className="flex flex-col gap-4">
-          <button
-<<<<<<< Updated upstream
-            className="rounded-xl px-8 py-4 text-lg font-semibold border border-pink-300 text-pink-700 hover:bg-pink-300 hover:text-white transition"
-=======
-            onClick={() => navigate("/student/play")}
-            className="rounded-xl px-8 py-4 text-lg font-semibold border border-blue-300 text-black hover:bg-blue-500 hover:text-white transition"
->>>>>>> Stashed changes
-          >
-            Start Game
-          </button>
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-white px-4">
+      <section className="flex flex-col gap-4 items-center w-full max-w-md">
+        <h1 className="text-4xl font-extrabold pb-2">Main Menu</h1>
 
-          <button
-            className="rounded-xl px-8 py-4 text-lg font-semibold border border-pink-300 text-pink-700 hover:bg-pink-300 hover:text-white transition"
-          >
-            Settings
-          </button>
+        <button
+          className="w-full rounded-xl px-8 py-4 text-lg font-semibold border border-blue-300 hover:bg-blue-500 hover:text-white transition"
+          onClick={() =>
+            navigate(user ? (user.role === "teacher" ? "/teacher" : "/student") : "/login")
+          }
+        >
+          Start Game
+        </button>
 
-          <button
-            className="rounded-xl px-8 py-4 text-lg font-semibold border border-pink-300 text-pink-700 hover:bg-pink-300 hover:text-white transition"
-          >
-            Extra
-          </button>
-        </div>
+        <button className="w-full rounded-xl px-8 py-4 text-lg font-semibold border border-blue-300 hover:bg-blue-500 hover:text-white transition">
+          Settings
+        </button>
+
+        <button className="w-full rounded-xl px-8 py-4 text-lg font-semibold border border-blue-300 hover:bg-blue-500 hover:text-white transition">
+          Extra
+        </button>
       </section>
-    </main>
-    );
-   } 
+    </div>
+  );
+}

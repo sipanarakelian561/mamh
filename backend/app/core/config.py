@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings
+from pydantic import field_validator
 
 class Settings(BaseSettings):
     APP_NAME: str = "Monster Ate My Homework API"
@@ -7,6 +8,25 @@ class Settings(BaseSettings):
     JWT_SECRET: str = "change-me"
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+
+    @field_validator("ACCESS_TOKEN_EXPIRE_MINUTES")
+    @classmethod
+    def validate_token_expiration(cls, value: int) -> int:
+        if value <= 0:
+            raise ValueError("ACCESS_TOKEN_EXPIRE_MINUTES must be greater than 0")
+        return value
+
+    @field_validator("JWT_SECRET")
+    @classmethod
+    def validate_jwt_secret_strength(cls, value: str, info) -> str:
+        env = str((info.data or {}).get("ENV", "local")).lower()
+        weak_values = {"change-me", "change-me-super-secret", "secret", "password"}
+        if env != "local" and (value in weak_values or len(value) < 32):
+            raise ValueError(
+                "JWT_SECRET is too weak for non-local environments. "
+                "Use at least 32 random characters."
+            )
+        return value
 
     class Config:
         env_file = ".env"

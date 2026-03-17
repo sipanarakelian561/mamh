@@ -42,7 +42,7 @@ export default function Register() {
       >
         <h1 className="text-4xl font-extrabold pb-2">Create Account</h1>
         <p className="w-full text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-xl p-3">
-          For testing purposes, this is not connected to the backend.
+          This form is connected to the backend API.
         </p>
 
         {error && (

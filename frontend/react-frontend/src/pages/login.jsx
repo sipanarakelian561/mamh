@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/UseAuth";
 
-const DEV_MODE = true; // Match AuthContext dev mode
+const DEV_MODE = false; // Set to false in production
 
 export default function LogIn() {
 	const [email, setEmail] = useState("");

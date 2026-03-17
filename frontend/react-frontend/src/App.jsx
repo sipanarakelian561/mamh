@@ -1,78 +1,62 @@
-<<<<<<< Updated upstream
-import {BrowserRouter, Routes, Route} from 'react-router-dom'
-import Home from './pages/home.jsx'
-import './App.css'
-=======
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import "./App.css";
+import { AuthProvider } from "./auth/AuthContext.jsx";
+import { useAuth } from "./auth/UseAuth.jsx";
 import Home from "./pages/home.jsx";
 import Login from "./pages/login.jsx";
 import Register from "./pages/register.jsx";
+import StudentPage from "./pages/student.jsx";
+import TeacherPage from "./pages/teacher.jsx";
 
-import { AuthProvider } from "./auth/AuthContext.jsx";
-import ProtectedRoute from "./auth/ProtectedRoute.jsx";
-import RoleRoute from "./auth/RoleRoute.jsx";
+function ProtectedRoleRoute({ role, children }) {
+  const { user } = useAuth();
 
-import StudentLayout from "./layouts/Studentlayout.jsx";
-import StudentOverview from "./pages/student/Overview.jsx";
-import StudentAssignments from "./pages/student/Assignments.jsx";
-import StudentQuizzes from "./pages/student/Quizzes.jsx";
-import StudentPlay from "./pages/student/Play.jsx";
-import StudentJoin from "./pages/student/Join.jsx";
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
-import TeacherLayout from "./layouts/Teacherlayout.jsx";
-import TeacherOverview from "./pages/teacher/Overview.jsx";
-import TeacherAssignments from "./pages/teacher/Assignments.jsx";
-import TeacherQuizzes from "./pages/teacher/Quizzes.jsx";
-import TeacherClassroom from "./pages/teacher/Classroom.jsx";
->>>>>>> Stashed changes
+  if (user.role !== role) {
+    return <Navigate to={user.role === "teacher" ? "/teacher" : "/student"} replace />;
+  }
+
+  return children;
+}
+
+function AppRoutes() {
+  const { user } = useAuth();
+
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={user ? <Navigate to={user.role === "teacher" ? "/teacher" : "/student"} replace /> : <Login />} />
+      <Route path="/register" element={user ? <Navigate to={user.role === "teacher" ? "/teacher" : "/student"} replace /> : <Register />} />
+      <Route
+        path="/student"
+        element={
+          <ProtectedRoleRoute role="student">
+            <StudentPage />
+          </ProtectedRoleRoute>
+        }
+      />
+      <Route
+        path="/teacher"
+        element={
+          <ProtectedRoleRoute role="teacher">
+            <TeacherPage />
+          </ProtectedRoleRoute>
+        }
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
 
 export default function App() {
   return (
+    <AuthProvider>
       <BrowserRouter>
-<<<<<<< Updated upstream
-        <div className="min-h-screen bg-gradient-to-b from-white to-pink-50">
-          <Routes>
-            <Route path="/" element={<Home />} />
-          </Routes>
-        </div>
-=======
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-
-          {/* Protected routes */}
-          <Route element={<ProtectedRoute />}>
-            {/* Student routes */}
-            <Route element={<RoleRoute role="student" />}>
-              <Route path="/student" element={<StudentLayout />}>
-                <Route index element={<Navigate to="overview" replace />} />
-                <Route path="overview" element={<StudentOverview />} />
-                <Route path="assignments" element={<StudentAssignments />} />
-                <Route path="quizzes" element={<StudentQuizzes />} />
-                <Route path="play" element={<StudentPlay />} />
-                <Route path="join" element={<StudentJoin />} />
-              </Route>
-            </Route>
-
-            {/* Teacher routes */}
-            <Route element={<RoleRoute role="teacher" />}>
-              <Route path="/teacher" element={<TeacherLayout />}>
-                <Route index element={<Navigate to="overview" replace />} />
-                <Route path="overview" element={<TeacherOverview />} />
-                <Route path="assignments" element={<TeacherAssignments />} />
-                <Route path="quizzes" element={<TeacherQuizzes />} />
-                <Route path="classrooms" element={<TeacherClassroom />} />
-              </Route>
-            </Route>
-          </Route>
-
-          {/* Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
->>>>>>> Stashed changes
+        <AppRoutes />
       </BrowserRouter>
+    </AuthProvider>
   );
 }
