@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../auth/UseAuth";
+import { useAuth } from "../auth/UseAuth.jsx";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -42,7 +42,7 @@ export default function Register() {
       >
         <h1 className="text-4xl font-extrabold pb-2">Create Account</h1>
         <p className="w-full text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-xl p-3">
-          This form is connected to the backend API.
+          For testing purposes, this is not connected to the backend.
         </p>
 
         {error && (
