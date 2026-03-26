@@ -45,7 +45,14 @@ def all_student_progress(
     db: Session = Depends(get_db),
     teacher: User = Depends(require_teacher),
 ):
-    rows = db.query(StudentProgress).all()
+    rows = (
+        db.query(StudentProgress)
+        .join(ClassroomMembership, ClassroomMembership.student_id == StudentProgress.student_id)
+        .join(Classroom, Classroom.id == ClassroomMembership.classroom_id)
+        .filter(Classroom.teacher_id == teacher.id)
+        .distinct()
+        .all()
+    )
     return [
         {
             "student_id": r.student_id,

@@ -124,3 +124,76 @@ def test_rejects_token_when_claims_do_not_match_user_permissions(client, db_sess
         headers={"Authorization": f"Bearer {forged_token}"},
     )
     assert response.status_code == 401
+
+
+def test_teacher_progress_only_includes_their_students(client, db_session):
+    _register_user(client, "teacher1@example.com", "password123", "teacher")
+    _register_user(client, "teacher2@example.com", "password123", "teacher")
+    _register_user(client, "student1@example.com", "password123", "student")
+    _register_user(client, "student2@example.com", "password123", "student")
+
+    teacher1 = db_session.query(User).filter(User.email == "teacher1@example.com").first()
+    teacher2 = db_session.query(User).filter(User.email == "teacher2@example.com").first()
+    student1 = db_session.query(User).filter(User.email == "student1@example.com").first()
+    student2 = db_session.query(User).filter(User.email == "student2@example.com").first()
+    assert teacher1 and teacher2 and student1 and student2
+
+    from app.models.classroom import Classroom
+    from app.models.classroom_membership import ClassroomMembership
+    from app.models.progress import StudentProgress
+
+    class1 = Classroom(
+        teacher_id=teacher1.id,
+        name="Math 101",
+        grade=5,
+        subject="math",
+        join_code="ABC12345",
+    )
+    class2 = Classroom(
+        teacher_id=teacher2.id,
+        name="Science 101",
+        grade=5,
+        subject="science",
+        join_code="XYZ12345",
+    )
+    db_session.add_all([class1, class2])
+    db_session.commit()
+    db_session.refresh(class1)
+    db_session.refresh(class2)
+
+    db_session.add_all(
+        [
+            ClassroomMembership(
+                classroom_id=class1.id,
+                student_id=student1.id,
+                first_name="S",
+                last_name="One",
+                email=student1.email,
+            ),
+            ClassroomMembership(
+                classroom_id=class2.id,
+                student_id=student2.id,
+                first_name="S",
+                last_name="Two",
+                email=student2.email,
+            ),
+        ]
+    )
+    db_session.add_all(
+        [
+            StudentProgress(student_id=student1.id, xp=10, level=1, problems_solved=2),
+            StudentProgress(student_id=student2.id, xp=20, level=2, problems_solved=4),
+        ]
+    )
+    db_session.commit()
+
+    token = create_access_token(subject=str(teacher1.id), role="teacher", is_admin=False)
+    response = client.get(
+        "/api/v1/teacher/students/progress",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert isinstance(body, list)
+    assert len(body) == 1
+    assert body[0]["student_id"] == student1.id
