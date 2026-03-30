@@ -12,31 +12,44 @@ import TeacherPage from "./pages/teacher.jsx";
 
 export default function App() {
   return (
-    <AuthProvider>
       <BrowserRouter>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+        <div className="min-h-screen bg-gradient-to-b from-white to-pink-50">
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-          {/* Protected routes */}
-          <Route element={<ProtectedRoute />}>
-            {/* Student routes */}
-            <Route element={<RoleRoute role="student" />}>
-              <Route path="/student" element={<StudentPage />} />
+            {/* Protected routes */}
+            <Route element={<ProtectedRoute />}>
+              {/* Student routes */}
+              <Route element={<RoleRoute role="student" />}>
+                <Route path="/student" element={<StudentLayout />}>
+                  <Route index element={<Navigate to="overview" replace />} />
+                  <Route path="overview" element={<StudentOverview />} />
+                  <Route path="assignments" element={<StudentAssignments />} />
+                  <Route path="quizzes" element={<StudentQuizzes />} />
+                  <Route path="play" element={<StudentPlay />} />
+                  <Route path="join" element={<StudentJoin />} />
+                </Route>
+              </Route>
+
+              {/* Teacher routes */}
+              <Route element={<RoleRoute role="teacher" />}>
+                <Route path="/teacher" element={<TeacherLayout />}>
+                  <Route index element={<Navigate to="overview" replace />} />
+                  <Route path="overview" element={<TeacherOverview />} />
+                  <Route path="assignments" element={<TeacherAssignments />} />
+                  <Route path="quizzes" element={<TeacherQuizzes />} />
+                  <Route path="classrooms" element={<TeacherClassroom />} />
+                </Route>
+              </Route>
             </Route>
 
-            {/* Teacher routes */}
-            <Route element={<RoleRoute role="teacher" />}>
-              <Route path="/teacher" element={<TeacherPage />} />
-            </Route>
-          </Route>
-
-          {/* Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
       </BrowserRouter>
-    </AuthProvider>
   );
 }
