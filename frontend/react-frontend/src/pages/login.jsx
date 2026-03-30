@@ -111,16 +111,14 @@ export default function LogIn() {
 				> 
 					Submit 
 				</button>
-				{!DEV_MODE && (
-					<div className="flex gap-2 items-center">
-						<button 
-							type="button"
-							className="text-blue-600 hover:underline"
-						> 
-							Forgot password 
-						</button>
-					</div>
-				)}
+
+				<button 
+					type="button"
+					className="text-blue-600 hover:underline"
+					onClick={() => navigate("/forgot-password")}
+				> 
+					Forgot Password?
+				</button>
 			</form>
 		</div>
 	);
