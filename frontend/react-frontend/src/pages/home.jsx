@@ -1,36 +1,25 @@
-import { useNavigate } from "react-router-dom";
-
 export default function Home() {
-  const navigate = useNavigate();
-
   return (
-    <main className="min-h-screen w-full flex items-center justify-center bg-gradient-to-b from-white to-white px-4">
-      <section className="text-center w-full max-w-md">
-        <h1 className="mb-10 text-4xl sm:text-5xl font-extrabold text-black">
-          Main Menu
-        </h1>
+    <div className="min-h-screen flex items-center justify-center bg-white px-4">
+      <section className="flex flex-col gap-4 items-center w-full max-w-md">
+        <h1 className="text-4xl font-extrabold pb-2">Main Menu</h1>
 
         <div className="flex flex-col gap-4">
           <button
-            className="rounded-xl px-8 py-4 text-lg font-semibold border border-pink-300 text-pink-700 hover:bg-pink-300 hover:text-white transition"
+            className="rounded-xl px-8 py-4 text-lg font-semibold border border-blue-300 text-black hover:bg-blue-500 hover:text-white transition"
           >
             Start Game
           </button>
 
-          <button
-            className="rounded-xl px-8 py-4 text-lg font-semibold border border-blue-300 text-black hover:bg-blue-500 hover:text-white transition"
-          >
+          <button className="w-full rounded-xl px-8 py-4 text-lg font-semibold border border-blue-300 hover:bg-blue-500 hover:text-white transition">
             Settings
           </button>
 
-          <button
-            onClick={() => navigate("/login")}
-            className="rounded-xl px-8 py-4 text-lg font-semibold border border-blue-300 text-black hover:bg-blue-500 hover:text-white transition"
-          >
-            Login - Sign Up
+          <button className="w-full rounded-xl px-8 py-4 text-lg font-semibold border border-blue-300 hover:bg-blue-500 hover:text-white transition">
+            Extra
           </button>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

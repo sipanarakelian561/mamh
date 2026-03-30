@@ -1,25 +1,33 @@
-export const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8000";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
 
-export async function apiFetch(path, { token, ...options } = {}) {
-  const headers = new Headers(options.headers || {});
-  headers.set("Content-Type", "application/json");
+export async function apiFetch(path, options = {}) {
+  const { token, headers = {}, ...rest } = options;
 
-  if (token) headers.set("Authorization", `Bearer ${token}`);
-
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers,
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...rest,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...headers,
+    },
   });
 
-  const contentType = res.headers.get("content-type") || "";
-  const data = contentType.includes("application/json") ? await res.json() : await res.text();
+  const text = await response.text();
+  let data = null;
 
-  if (!res.ok) {
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = text;
+    }
+  }
+
+  if (!response.ok) {
     const message =
-      (typeof data === "object" && data?.detail) ||
-      (typeof data === "object" && data?.message) ||
-      (typeof data === "string" && data) ||
-      `Request failed (${res.status})`;
+      (data && typeof data === "object" && (data.detail || data.message)) ||
+      `Request failed (${response.status})`;
     throw new Error(message);
   }
 

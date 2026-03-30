@@ -1,8 +1,20 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "./UseAuth";
+import { useAuth } from "./UseAuth.jsx";
 
 export default function ProtectedRoute() {
   const { token, loading } = useAuth();
-  if (loading) return <div className="p-6 text-lg">Loading...</div>;
-  return token ? <Outlet /> : <Navigate to="/login" replace />;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <Outlet />;
 }
