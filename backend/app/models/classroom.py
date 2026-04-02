@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -15,4 +15,4 @@ class Classroom(Base):
     grade: Mapped[int] = mapped_column(Integer, index=True)
     subject: Mapped[str] = mapped_column(String(30), index=True)
     join_code: Mapped[str] = mapped_column(String(12), unique=True, index=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
