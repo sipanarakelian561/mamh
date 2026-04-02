@@ -7,11 +7,21 @@ import { AuthProvider } from "./auth/AuthContext.jsx";
 import ProtectedRoute from "./auth/ProtectedRoute.jsx";
 import RoleRoute from "./auth/RoleRoute.jsx";
 
-import StudentPage from "./pages/student.jsx";
-import TeacherPage from "./pages/teacher.jsx";
+import StudentLayout from "./layouts/Studentlayout.jsx";
+import TeacherLayout from "./layouts/Teacherlayout.jsx";
+import StudentOverview from "./pages/student/Overview.jsx";
+import StudentAssignments from "./pages/student/Assignments.jsx";
+import StudentQuizzes from "./pages/student/Quizzes.jsx";
+import StudentPlay from "./pages/student/Play.jsx";
+import StudentJoin from "./pages/student/Join.jsx";
+import TeacherOverview from "./pages/teacher/Overview.jsx";
+import TeacherAssignments from "./pages/teacher/Assignments.jsx";
+import TeacherQuizzes from "./pages/teacher/Quizzes.jsx";
+import TeacherClassroom from "./pages/teacher/Classroom.jsx";
 
 export default function App() {
   return (
+    <AuthProvider>
       <BrowserRouter>
         <div className="min-h-screen bg-gradient-to-b from-white to-pink-50">
           <Routes>
@@ -51,5 +61,6 @@ export default function App() {
           </Routes>
         </div>
       </BrowserRouter>
+    </AuthProvider>
   );
 }
