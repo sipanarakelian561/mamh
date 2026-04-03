@@ -34,8 +34,8 @@ export default function TeacherClassrooms() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="text-3xl font-extrabold">Classrooms</div>
+    <div className="text-white flex flex-col gap-6">
+      <div className="text-white text-3xl font-extrabold">Classrooms</div>
 
       <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
         <strong>Demo (no backend):</strong> Codes are stored in this browser only. Students can join only from the same browser (e.g. open a student tab and use “Join with code”).
@@ -64,20 +64,20 @@ export default function TeacherClassrooms() {
                 <button
                   type="button"
                   onClick={() => handleGenerateCode(room)}
-                  className="rounded-xl px-5 py-2.5 text-base font-semibold border border-blue-300 bg-white hover:bg-blue-500 hover:text-white transition"
+                  className="text-black rounded-xl px-5 py-2.5 text-base font-semibold border border-blue-300 bg-white hover:bg-blue-500 hover:text-white transition"
                 >
                   Generate join code
                 </button>
               </div>
               <div className="border-t pt-3">
-                <div className="text-sm font-semibold text-gray-600 mb-2">
+                <div className="text-white text-sm font-semibold text-gray-600 mb-2">
                   Students in class ({DUMMY_STUDENTS_BY_CLASS[room.id]?.length ?? 0})
                 </div>
                 <ul className="flex flex-col gap-1.5">
                   {(DUMMY_STUDENTS_BY_CLASS[room.id] ?? []).map((s) => (
-                    <li key={s.id} className="text-sm text-gray-700 flex gap-2">
-                      <span className="font-medium">{s.name}</span>
-                      <span className="text-gray-500">{s.email}</span>
+                    <li key={s.id} className="text-white text-sm flex gap-2">
+                      <span className="text-white font-medium">{s.name}</span>
+                      <span className="text-white">{s.email}</span>
                     </li>
                   ))}
                 </ul>

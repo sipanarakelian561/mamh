@@ -46,19 +46,19 @@ export default function Overview() {
     <div className="flex flex-col gap-6">
       <button
         onClick={() => navigate("/student/play")}
-        className="rounded-2xl px-8 py-6 text-2xl font-extrabold border border-blue-300 hover:bg-blue-500 hover:text-white transition w-full sm:w-fit"
+        className="text-white rounded-2xl px-8 py-6 text-2xl font-extrabold border border-blue-300 hover:bg-blue-500 hover:text-white transition w-full sm:w-fit"
       >
         Play Game
       </button>
 
       {err ? (
-        <div className="rounded-xl border p-4 text-sm">
+        <div className="text-white rounded-xl border p-4 text-sm">
           Backend not connected yet: <span className="font-semibold">{err}</span>
           <div className="text-xs mt-1">Showing sample data for now.</div>
         </div>
       ) : null}
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="text-white grid md:grid-cols-2 gap-6">
         <Card title="My Assignments">
           <ul className="flex flex-col gap-3">
             {assignments.slice(0, 5).map((a) => (

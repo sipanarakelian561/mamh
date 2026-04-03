@@ -2,3 +2,10 @@
 .godot/
 /android/
 .vscode/
+
+# Python
+venv/
+backend/venv/
+__pycache__/
+*.pyc
+.env

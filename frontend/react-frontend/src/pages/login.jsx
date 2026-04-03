@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/UseAuth";
+import Silk from "@/components/Silk.jsx";
 
 const DEV_MODE = false; // Set to false in production
 
@@ -45,21 +46,33 @@ export default function LogIn() {
 	}
 
 	return (
-		<div className="min-h-screen flex items-center justify-center bg-white px-4">
+		  <div className="relative min-h-screen">
+    {/* Background */}
+    <div className="absolute inset-0 z-0">
+      <Silk 
+	 speed={10}
+      scale={2}
+      color="#e346ff"
+      noiseIntensity={1.5}
+      rotation={5.5}
+	  />
+    </div>
+		{/* Content */}
+		<div className="relative z-10 min-h-screen flex items-center justify-center px-4">
 			<button 
-				className="absolute top-4 left-4 px-4 py-2 rounded-xl border border-blue-300 hover:bg-blue-500 hover:text-white transition" 
+				className="text-white absolute top-4 left-4 px-4 py-2 rounded-xl border border-blue-300 hover:bg-blue-500 hover:text-white transition" 
 				onClick={() => navigate("/")}
 			> 
 				Return 
 			</button>
 			<button
-				className="absolute top-4 right-4 px-4 py-2 rounded-xl border border-blue-300 hover:bg-blue-500 hover:text-white transition"
+				className="text-white absolute top-4 right-4 px-4 py-2 rounded-xl border border-blue-300 hover:bg-blue-500 hover:text-white transition"
 				onClick={() => navigate("/register")}
 			>
 				Create Account
 			</button>
 			<form onSubmit={HandleSubmit} className="flex flex-col gap-4 items-center w-full max-w-md">
-				<h1 className="text-4xl font-extrabold pb-2"> Log in </h1>
+				<h1 className="text-white text-4xl font-extrabold pb-2"> Log in </h1>
 				
 				{/* Dev Mode Test Credentials */}
 				{DEV_MODE && (
@@ -95,7 +108,7 @@ export default function LogIn() {
 					value={email}
 					onChange={(e) => setEmail(e.target.value)}
 					required
-					className="w-full p-3 border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+					className="placeholder-white text-white font-bold w-full p-3 border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
 				/>
 				<input
 					type="password"
@@ -103,11 +116,11 @@ export default function LogIn() {
 					value={password}
 					onChange={(e) => setPassword(e.target.value)}
 					required
-					className="w-full p-3 border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+					className="placeholder-white text-white font-bold w-full p-3 border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
 				/>
 				<button 
 					type="submit"
-					className="w-full rounded-xl px-8 py-4 text-lg font-semibold border border-blue-300 hover:bg-blue-500 hover:text-white transition"
+					className="text-white w-full rounded-xl px-8 py-4 text-lg font-semibold border border-blue-300 hover:bg-blue-500 hover:text-white transition"
 				> 
 					Submit 
 				</button>
@@ -115,13 +128,14 @@ export default function LogIn() {
 					<div className="flex gap-2 items-center">
 						<button 
 							type="button"
-							className="text-blue-600 hover:underline"
+							className="text-white hover:text-blue-600 hover:underline"
 						> 
 							Forgot password 
 						</button>
 					</div>
 				)}
 			</form>
+		</div>
 		</div>
 	);
 };
