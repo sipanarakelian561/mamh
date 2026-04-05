@@ -46,6 +46,7 @@ export default function TeacherLayout() {
         <BigNav to="/teacher/assignments" label="Assignments" />
         <BigNav to="/teacher/quizzes" label="Quizzes" />
         <BigNav to="/teacher/classrooms" label="Classrooms" />
+        <BigNav to="/teacher/password" label="Change Password" />
       </aside>
 
       {/* Main */}

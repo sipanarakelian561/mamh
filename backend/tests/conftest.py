@@ -1,12 +1,16 @@
 from collections.abc import Generator
 from pathlib import Path
 import sys
+import os
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
+
+os.environ["ALLOW_PUBLIC_REGISTRATION"] = "true"
+os.environ["DEBUG"] = "true"
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 if str(BACKEND_DIR) not in sys.path:

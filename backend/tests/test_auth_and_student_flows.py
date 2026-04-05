@@ -197,3 +197,41 @@ def test_teacher_progress_only_includes_their_students(client, db_session):
     assert isinstance(body, list)
     assert len(body) == 1
     assert body[0]["student_id"] == student1.id
+
+
+def test_teacher_can_change_password(client):
+    _register_user(client, "teachpass@example.com", "password123", "teacher")
+    token = _login_user(client, "teachpass@example.com", "password123")
+
+    response = client.post(
+        "/api/v1/auth/change-password",
+        json={"current_password": "password123", "new_password": "newpassword456"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200, response.text
+
+    # Old password should no longer work
+    response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "teachpass@example.com", "password": "password123"},
+    )
+    assert response.status_code == 401
+
+    # New password should work
+    response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "teachpass@example.com", "password": "newpassword456"},
+    )
+    assert response.status_code == 200
+
+
+def test_student_cannot_change_password(client):
+    _register_user(client, "studpass@example.com", "password123", "student")
+    token = _login_user(client, "studpass@example.com", "password123")
+
+    response = client.post(
+        "/api/v1/auth/change-password",
+        json={"current_password": "password123", "new_password": "newpassword456"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 403

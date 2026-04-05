@@ -11,12 +11,25 @@ def hash_password(password: str) -> str:
 def verify_password(password: str, password_hash: str) -> bool:
     return pwd_context.verify(password, password_hash)
 
-def create_access_token(subject: str, role: str, is_admin: bool, expires_minutes: int | None = None) -> str:
+def create_access_token(
+    subject: str,
+    role: str,
+    is_admin: bool,
+    must_change_password: bool = False,
+    expires_minutes: int | None = None,
+) -> str:
     now = datetime.now(timezone.utc)
     expire = now + timedelta(
         minutes=expires_minutes or settings.ACCESS_TOKEN_EXPIRE_MINUTES
     )
-    payload = {"sub": subject, "role": role, "adm": bool(is_admin), "iat": now, "exp": expire}
+    payload = {
+        "sub": subject,
+        "role": role,
+        "adm": bool(is_admin),
+        "pwd": bool(must_change_password),
+        "iat": now,
+        "exp": expire,
+    }
     return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
 
 def decode_token(token: str) -> dict:
@@ -32,10 +45,12 @@ def decode_token(token: str) -> dict:
         raise ValueError("Invalid token subject")
 
     role = payload.get("role")
-    if role not in {"student", "teacher"}:
+    if role not in {"student", "teacher", "admin"}:
         raise ValueError("Invalid token role")
 
     if "adm" in payload and not isinstance(payload["adm"], bool):
         raise ValueError("Invalid admin claim")
+    if "pwd" in payload and not isinstance(payload["pwd"], bool):
+        raise ValueError("Invalid password-change claim")
 
     return payload

@@ -23,6 +23,7 @@ function userFromToken(jwtToken) {
     id: Number(payload.sub),
     role: payload.role,
     is_admin: Boolean(payload.adm),
+    must_change_password: Boolean(payload.pwd),
   };
 }
 
@@ -73,4 +74,3 @@ export function AuthProvider({ children }) {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
-

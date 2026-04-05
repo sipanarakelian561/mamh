@@ -9,6 +9,7 @@ import RoleRoute from "./auth/RoleRoute.jsx";
 
 import StudentLayout from "./layouts/Studentlayout.jsx";
 import TeacherLayout from "./layouts/Teacherlayout.jsx";
+import AdminLayout from "./layouts/AdminLayout.jsx";
 import StudentOverview from "./pages/student/Overview.jsx";
 import StudentAssignments from "./pages/student/Assignments.jsx";
 import StudentQuizzes from "./pages/student/Quizzes.jsx";
@@ -18,6 +19,8 @@ import TeacherOverview from "./pages/teacher/Overview.jsx";
 import TeacherAssignments from "./pages/teacher/Assignments.jsx";
 import TeacherQuizzes from "./pages/teacher/Quizzes.jsx";
 import TeacherClassroom from "./pages/teacher/Classroom.jsx";
+import TeacherChangePassword from "./pages/teacher/ChangePassword.jsx";
+import AdminOverview from "./pages/admin/Overview.jsx";
 
 export default function App() {
   return (
@@ -52,6 +55,15 @@ export default function App() {
                   <Route path="assignments" element={<TeacherAssignments />} />
                   <Route path="quizzes" element={<TeacherQuizzes />} />
                   <Route path="classrooms" element={<TeacherClassroom />} />
+                  <Route path="password" element={<TeacherChangePassword />} />
+                </Route>
+              </Route>
+
+              {/* Admin routes */}
+              <Route element={<RoleRoute role="admin" />}>
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route index element={<Navigate to="overview" replace />} />
+                  <Route path="overview" element={<AdminOverview />} />
                 </Route>
               </Route>
             </Route>

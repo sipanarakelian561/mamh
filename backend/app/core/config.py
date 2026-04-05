@@ -9,6 +9,9 @@ class Settings(BaseSettings):
     JWT_SECRET: str = "change-me"
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    ALLOW_PUBLIC_REGISTRATION: bool = False
+    ADMIN_EMAIL: str | None = None
+    ADMIN_PASSWORD: str | None = None
 
     @field_validator("ACCESS_TOKEN_EXPIRE_MINUTES")
     @classmethod
