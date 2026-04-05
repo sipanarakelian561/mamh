@@ -21,10 +21,10 @@ def _login_user(client, email: str, password: str) -> str:
 
 
 def test_register_and_login_normalizes_email(client):
-    created = _register_user(client, "Student@OneSchool.org", "password123", "student")
-    assert created["email"] == "student@oneschool.org"
+    created = _register_user(client, "Student@aschool.org", "password123", "student")
+    assert created["email"] == "student@aschool.org"
 
-    token = _login_user(client, "STUDENT@ONESCHOOL.ORG", "password123")
+    token = _login_user(client, "STUDENT@ASCHOOL.ORG", "password123")
     assert isinstance(token, str)
     assert token
 
@@ -32,7 +32,7 @@ def test_register_and_login_normalizes_email(client):
 def test_register_rejects_short_password(client):
     response = client.post(
         "/api/v1/auth/register",
-        json={"email": "short@example.com", "password": "short", "role": "student"},
+        json={"email": "test@example.com", "password": "hello", "role": "student"},
     )
     assert response.status_code == 422
 

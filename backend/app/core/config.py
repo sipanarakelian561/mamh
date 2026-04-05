@@ -4,6 +4,7 @@ from pydantic import field_validator
 class Settings(BaseSettings):
     APP_NAME: str = "Monster Ate My Homework API"
     ENV: str = "local"
+    DEBUG: bool = True
     DATABASE_URL: str = "sqlite:///./app.db"
     JWT_SECRET: str = "change-me"
     JWT_ALGORITHM: str = "HS256"
@@ -20,8 +21,12 @@ class Settings(BaseSettings):
     @classmethod
     def validate_jwt_secret_strength(cls, value: str, info) -> str:
         env = str((info.data or {}).get("ENV", "local")).lower()
+        db_url = str((info.data or {}).get("DATABASE_URL", ""))
+        debug = bool((info.data or {}).get("DEBUG", True))
         weak_values = {"change-me", "change-me-super-secret", "secret", "password"}
-        if env != "local" and (value in weak_values or len(value) < 32):
+        non_local_db = not db_url.startswith("sqlite")
+        must_be_strong = env != "local" or not debug or non_local_db
+        if must_be_strong and (value in weak_values or len(value) < 32):
             raise ValueError(
                 "JWT_SECRET is too weak for non-local environments. "
                 "Use at least 32 random characters."

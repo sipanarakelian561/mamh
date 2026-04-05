@@ -1,0 +1,1 @@
+# This file will generate a randomizer to create accounts with admin permission
