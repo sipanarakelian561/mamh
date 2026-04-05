@@ -2,8 +2,8 @@ import { useNavigate } from "react-router-dom";
 
 function Card({ title, children }) {
   return (
-    <div className="rounded-2xl border p-5">
-      <div className="text-xl font-bold mb-3">{title}</div>
+    <div className="text-white border-white ounded-2xl border p-5">
+      <div className=" text-white text-xl font-bold mb-3">{title}</div>
       {children}
     </div>
   );
@@ -14,7 +14,7 @@ export default function TeacherOverview() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="text-3xl font-extrabold">Teacher Dashboard</div>
+      <div className="text-white text-3xl font-extrabold">Teacher Dashboard</div>
 
       <div className="grid md:grid-cols-2 gap-6">
         <Card title="Quick Actions">
