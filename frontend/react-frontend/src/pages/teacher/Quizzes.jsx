@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../auth/UseAuth";
 import { apiFetch } from "../../api/client";
 
@@ -11,6 +11,34 @@ export default function TeacherQuizzes() {
   const [questions, setQuestions] = useState([{ prompt: "", answer: "" }]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const completionStats = useMemo(() => {
+    const completionByQuiz = new Map();
+    const completersByQuiz = new Map();
+    const classroomStudentCounts = new Map();
+    classrooms.forEach((room) => {
+      const members = Array.isArray(room.members) ? room.members : [];
+      classroomStudentCounts.set(room.id, members.length);
+      members.forEach((member) => {
+        const completed = Array.isArray(member.completed_quizzes)
+          ? member.completed_quizzes
+          : [];
+        completed.forEach((quiz) => {
+          const current = completionByQuiz.get(quiz.id) || 0;
+          completionByQuiz.set(quiz.id, current + 1);
+          const list = completersByQuiz.get(quiz.id) || [];
+          list.push({
+            student_id: member.student_id,
+            first_name: member.first_name,
+            last_name: member.last_name,
+            email: member.email,
+          });
+          completersByQuiz.set(quiz.id, list);
+        });
+      });
+    });
+    return { completionByQuiz, completersByQuiz, classroomStudentCounts };
+  }, [classrooms]);
 
   async function loadData() {
     setError("");
@@ -166,6 +194,33 @@ export default function TeacherQuizzes() {
           <ul className="flex flex-col gap-3">
             {quizzes.map((q) => (
               <li key={q.id} className="rounded-xl border p-3 text-sm">
+                {(() => {
+                  const completedCount =
+                    completionStats.completionByQuiz.get(q.id) ?? 0;
+                  const totalStudents =
+                    completionStats.classroomStudentCounts.get(q.classroom_id) ?? 0;
+                  const completers = completionStats.completersByQuiz.get(q.id) ?? [];
+                  return (
+                    <div className="text-gray-600">
+                      {totalStudents > 0
+                        ? `Completed by ${completedCount}/${totalStudents} students`
+                        : "No students yet"}
+                      {completers.length > 0 ? (
+                        <div className="mt-1 text-gray-500">
+                          Completed by:{" "}
+                          {completers
+                            .map((student) =>
+                              [student.first_name, student.last_name]
+                                .filter(Boolean)
+                                .join(" ")
+                                .trim() || student.email
+                            )
+                            .join(", ")}
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                })()}
                 <div className="text-lg font-semibold">{q.title}</div>
                 <div className="text-gray-600">
                   {q.classroom_name} • Grade {q.grade} {q.subject} • {q.questions?.length ?? q.question_count}{" "}

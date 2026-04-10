@@ -1,6 +1,5 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/UseAuth";
-import Silk from "@/ReactBits/Silk/Silk";
 
 function BigNav({ to, label }) {
   return (
@@ -8,7 +7,7 @@ function BigNav({ to, label }) {
       to={to}
       className={({ isActive }) =>
         `rounded-xl px-4 py-4 text-lg font-semibold border transition
-         ${isActive ? "bg-blue-500 text-white border-blue-500" : "border-blue-300 hover:bg-blue-500 hover:text-white text-white"}`
+         ${isActive ? "bg-blue-500 text-white border-blue-500" : "border-blue-300 hover:bg-blue-500 hover:text-white text-slate-900"}`
       }
     >
       {label}
@@ -26,22 +25,10 @@ export default function StudentLayout() {
       : user?.email || "Student";
 
   return (
-    <div className="relative min-h-screen">
-    {/* Background */}
-    <div className="absolute inset-0 z-0">
-      <Silk
-      speed={10}
-      scale={2}
-      color="#e346ff"
-      noiseIntensity={1.5}
-      rotation={5.5} 
-      />
-    </div>
-      {/* Content */}
-    <div className="relative z-10 min-h-screen flex">
+    <div className="min-h-screen flex bg-white">
       {/* Sidebar */}
-      <aside className="w-72 p-4 border-r border-white text-white flex flex-col gap-4">
-        <div className="text-2xl font-extrabold px-2 ">Student</div>
+      <aside className="w-72 p-4 border-r flex flex-col gap-4">
+        <div className="text-2xl font-extrabold px-2">Student</div>
         <BigNav to="/student/overview" label="Overview" />
         <BigNav to="/student/assignments" label="Assignments" />
         <BigNav to="/student/quizzes" label="Quizzes" />
@@ -52,14 +39,14 @@ export default function StudentLayout() {
       {/* Main */}
       <div className="flex-1 flex flex-col">
         {/* Top bar */}
-        <header className="h-16 border-b border-white flex items-center justify-between px-6">
-          <div className="text-white text-xl font-semibold">Hi, {name}</div>
+        <header className="h-16 border-b flex items-center justify-between px-6">
+          <div className="text-xl font-semibold">Hi, {name}</div>
           <button
             onClick={() => {
               logout();
               navigate("/");
             }}
-            className="text-white rounded-xl px-4 py-2 text-lg font-semibold border border-blue-300 hover:bg-blue-500 hover:text-white transition"
+            className="rounded-xl px-4 py-2 text-lg font-semibold border border-blue-300 hover:bg-blue-500 hover:text-white transition"
           >
             Logout
           </button>
@@ -68,7 +55,6 @@ export default function StudentLayout() {
         <main className="p-6">
           <Outlet />
         </main>
-      </div>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ from app.api.v1.deps.auth import require_student
 from app.db.session import get_db
 from app.models.assignment import Assignment
 from app.models.assignment_completion import AssignmentCompletion
+from app.models.quiz_completion import QuizCompletion
 from app.models.classroom import Classroom
 from app.models.classroom_membership import ClassroomMembership
 from app.models.quiz import Quiz, QuizQuestion
@@ -398,6 +399,28 @@ def submit_quiz_answers(
                 "correct": is_correct,
             }
         )
+
+    existing = (
+        db.query(QuizCompletion)
+        .filter(
+            QuizCompletion.quiz_id == quiz.id,
+            QuizCompletion.student_id == student.id,
+        )
+        .first()
+    )
+    if existing:
+        existing.correct_count = correct_count
+        existing.total_questions = len(question_map)
+    else:
+        db.add(
+            QuizCompletion(
+                quiz_id=quiz.id,
+                student_id=student.id,
+                correct_count=correct_count,
+                total_questions=len(question_map),
+            )
+        )
+    db.commit()
 
     return {
         "quiz_id": quiz.id,

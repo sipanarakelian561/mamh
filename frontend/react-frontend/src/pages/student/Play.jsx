@@ -1,9 +1,24 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { useAuth } from "../../auth/UseAuth";
 
 export default function StudentPlay() {
+  const { token } = useAuth();
+  const location = useLocation();
   const [started, setStarted] = useState(false);
   const [ready, setReady] = useState(false);
   const gameShellRef = useRef(null);
+
+  const iframeSrc = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    const mode = params.get("mode") || "";
+    const quizId = params.get("quizId") || "";
+    const qp = new URLSearchParams();
+    if (mode) qp.set("mode", mode);
+    if (quizId) qp.set("quizId", quizId);
+    if (token) qp.set("token", token);
+    return `/godot-game/index.html?${qp.toString()}`;
+  }, [location.search, token]);
 
   function enterFullscreen() {
     const el = gameShellRef.current;
@@ -43,7 +58,7 @@ export default function StudentPlay() {
             </button>
           </div>
           <iframe
-            src="/dino-game/index.html"
+            src={iframeSrc}
             title="Dino Game"
             allow="fullscreen"
             allowFullScreen

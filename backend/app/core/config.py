@@ -12,6 +12,13 @@ class Settings(BaseSettings):
     ALLOW_PUBLIC_REGISTRATION: bool = False
     ADMIN_EMAIL: str | None = None
     ADMIN_PASSWORD: str | None = None
+    RUN_DB_INIT: bool = True
+    ALLOWED_ORIGINS: list[str] = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:4173",
+        "http://127.0.0.1:4173",
+    ]
 
     @field_validator("ACCESS_TOKEN_EXPIRE_MINUTES")
     @classmethod
@@ -34,6 +41,13 @@ class Settings(BaseSettings):
                 "JWT_SECRET is too weak for non-local environments. "
                 "Use at least 32 random characters."
             )
+        return value
+
+    @field_validator("ALLOWED_ORIGINS", mode="before")
+    @classmethod
+    def split_allowed_origins(cls, value):
+        if isinstance(value, str):
+            return [v.strip() for v in value.split(",") if v.strip()]
         return value
 
     model_config = SettingsConfigDict(env_file=".env")

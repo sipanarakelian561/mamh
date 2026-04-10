@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/UseAuth.jsx";
-import Silk from "@/components/Silk.jsx";
 
 export default function Register() {
   const registerDisabled = true;
@@ -35,21 +34,9 @@ export default function Register() {
 
   return (
 
-    <div className="relative min-h-screen">
-    {/* Background */}
-    <div className="absolute inset-0 z-0">
-      <Silk
-      speed={10}
-      scale={2}
-      color="#e346ff"
-      noiseIntensity={1.5}
-      rotation={5.5}
-      />
-    </div>
-    
-    <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-white">
       <button
-        className="text-white absolute top-4 left-4 px-4 py-2 rounded-xl border border-blue-300 hover:bg-blue-500 hover:text-white transition"
+        className="absolute top-4 left-4 px-4 py-2 rounded-xl border border-blue-300 text-slate-900 hover:bg-blue-500 hover:text-white transition"
         onClick={() => navigate("/login")}
       >
         Back to Login
@@ -59,7 +46,7 @@ export default function Register() {
         onSubmit={handleSubmit}
         className="flex flex-col gap-4 items-center w-full max-w-md"
       >
-        <h1 className=" text-white text-4xl font-extrabold pb-2">Create Account</h1>
+        <h1 className="text-4xl font-extrabold pb-2">Create Account</h1>
         <p className="w-full text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded-xl p-3">
           Registration is disabled. Please contact an admin to create an account.
         </p>
@@ -77,7 +64,7 @@ export default function Register() {
           onChange={(e) => setEmail(e.target.value)}
           required
           disabled={registerDisabled}
-          className="placeholder-white text-white font-bold w-full p-3 border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="font-bold w-full p-3 border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
         <input
@@ -88,7 +75,7 @@ export default function Register() {
           required
           minLength={6}
           disabled={registerDisabled}
-          className="placeholder-white text-white font-bold w-full p-3 border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="font-bold w-full p-3 border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
         <select
@@ -104,12 +91,11 @@ export default function Register() {
         <button
           type="submit"
           disabled={registerDisabled || loading}
-          className="text-white w-full rounded-xl px-8 py-4 text-lg font-semibold border border-blue-300 hover:bg-blue-500 hover:text-white transition disabled:opacity-60"
+          className="w-full rounded-xl px-8 py-4 text-lg font-semibold border border-blue-300 hover:bg-blue-500 hover:text-white transition disabled:opacity-60"
         >
           {loading ? "Creating..." : "Create Account"}
         </button>
       </form>
-    </div>
     </div>
   );
 }

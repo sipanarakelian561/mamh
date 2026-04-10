@@ -8,7 +8,7 @@ const STORAGE_KEY = "mamh_classroom_join_codes";
 
 const CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O, 1/I to avoid confusion
 
-function randomCode(length = 6) {
+function randomCode(length = 8) {
   let code = "";
   for (let i = 0; i < length; i++) {
     code += CHARS[Math.floor(Math.random() * CHARS.length)];
@@ -34,8 +34,8 @@ function setJoinCodes(codes) {
 /** Teacher: generate a new code for a classroom and store it. Returns the code. */
 export function generateJoinCode(classroomId, classroomName) {
   const codes = getJoinCodes();
-  let code = randomCode(6);
-  while (codes[code]) code = randomCode(6);
+  let code = randomCode(8);
+  while (codes[code]) code = randomCode(8);
   codes[code] = { classroomId, classroomName };
   setJoinCodes(codes);
   return code;

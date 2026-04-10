@@ -172,6 +172,10 @@ export default function StudentPage() {
     }
   }
 
+  function startQuizInGame(quizId) {
+    navigate(`/student/play?mode=quiz&quizId=${quizId}`);
+  }
+
   async function submitQuiz() {
     if (!selectedQuiz) return;
 
@@ -380,7 +384,10 @@ export default function StudentPage() {
                       <div className="text-sm text-slate-600">{quiz.classroom_name} | Grade {quiz.grade} | {quiz.subject}</div>
                       <div className="font-semibold text-slate-900">{quiz.title}</div>
                       <div className="text-sm text-slate-500">{quiz.question_count} questions</div>
-                      <button className="mt-2 rounded-lg border border-blue-300 px-3 py-1 text-sm font-semibold text-slate-900 hover:bg-blue-50" onClick={() => viewQuiz(quiz.id)}>View Quiz</button>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <button className="rounded-lg border border-blue-300 px-3 py-1 text-sm font-semibold text-slate-900 hover:bg-blue-50" onClick={() => viewQuiz(quiz.id)}>View Quiz</button>
+                        <button className="rounded-lg border border-blue-400 px-3 py-1 text-sm font-semibold text-slate-900 hover:bg-blue-500 hover:text-white" onClick={() => startQuizInGame(quiz.id)}>Start Quiz</button>
+                      </div>
                     </article>
                   ))}
                 </div>

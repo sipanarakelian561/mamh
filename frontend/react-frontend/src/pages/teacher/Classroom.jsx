@@ -1,90 +1,161 @@
-import { useState } from "react";
-import { generateJoinCode } from "../../utils/classroomCodes";
-
-// Dummy data for skeleton — replace with API when backend is ready
-const DUMMY_CLASSROOMS = [
-  { id: "1", name: "Math" },
-  { id: "2", name: "Science" },
-  { id: "3", name: "Reading & Writing" },
-];
-
-const DUMMY_STUDENTS_BY_CLASS = {
-  "1": [
-    { id: "s1", name: "Lebron James", email: "lebron.james@school.edu" },
-    { id: "s2", name: "Lebron James Jr.", email: "lebron.jamesJr@school.edu" },
-    { id: "s3", name: "Lebron James III", email: "lebron.jamesIII@school.edu" },
-  ],
-  "2": [
-    { id: "s4", name: "Lebron James IV", email: "lebron.jamesIV@school.edu" },
-    { id: "s5", name: "Lebron James V", email: "lebron.jamesV@school.edu" },
-  ],
-  "3": [
-    { id: "s6", name: "Lebron James VI", email: "lebron.jamesVI@school.edu" },
-    { id: "s7", name: "Lebron James VII", email: "lebron.jamesVII@school.edu" },
-    { id: "s8", name: "Lebron James VIII", email: "lebron.jamesVIII@school.edu" },
-  ],
-};
+import { useEffect, useState } from "react";
+import { apiFetch } from "../../api/client";
+import { useAuth } from "../../auth/UseAuth";
 
 export default function TeacherClassrooms() {
-  const [activeCode, setActiveCode] = useState(null); // { code, classroomName }
+  const { token } = useAuth();
+  const [classrooms, setClassrooms] = useState([]);
+  const [name, setName] = useState("");
+  const [grade, setGrade] = useState(3);
+  const [subject, setSubject] = useState("math");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function handleGenerateCode(classroom) {
-    const code = generateJoinCode(classroom.id, classroom.name);
-    setActiveCode({ code, classroomName: classroom.name });
+  async function loadClassrooms() {
+    setError("");
+    try {
+      const data = await apiFetch("/teacher/classrooms", { token });
+      setClassrooms(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setError(err.message || "Failed to load classrooms.");
+    }
+  }
+
+  useEffect(() => {
+    loadClassrooms();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function handleCreate(e) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const created = await apiFetch("/teacher/classrooms", {
+        method: "POST",
+        token,
+        body: JSON.stringify({
+          name,
+          grade: Number(grade),
+          subject,
+        }),
+      });
+      setClassrooms((prev) => [created, ...prev]);
+      setName("");
+    } catch (err) {
+      setError(err.message || "Failed to create classroom.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
-    <div className="text-white flex flex-col gap-6">
-      <div className="text-white text-3xl font-extrabold">Classrooms</div>
+    <div className="flex flex-col gap-6">
+      <div className="text-3xl font-extrabold">Classrooms</div>
 
-      <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
-        <strong>Demo (no backend):</strong> Codes are stored in this browser only. Students can join only from the same browser (e.g. open a student tab and use “Join with code”).
-      </div>
-
-      {activeCode && (
-        <div className="rounded-2xl border-2 border-green-400 bg-green-50 p-5">
-          <div className="text-lg font-bold text-green-900 mb-1">Share this code with students</div>
-          <div className="text-3xl font-mono font-bold tracking-widest text-green-800">
-            {activeCode.code}
-          </div>
-          <div className="text-sm text-green-700 mt-1">Class: {activeCode.classroomName}</div>
+      {error ? (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          {error}
         </div>
-      )}
+      ) : null}
+
+      <div className="rounded-2xl border p-5">
+        <div className="text-xl font-bold mb-4">Create Classroom</div>
+        <form onSubmit={handleCreate} className="flex flex-col gap-4">
+          <input
+            type="text"
+            placeholder="Classroom name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            className="w-full p-3 border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <input
+              type="number"
+              min={1}
+              max={12}
+              value={grade}
+              onChange={(e) => setGrade(e.target.value)}
+              className="w-full p-3 border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <select
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              className="w-full p-3 border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            >
+              <option value="math">Math</option>
+              <option value="science">Science</option>
+              <option value="reading">Reading</option>
+              <option value="writing">Writing</option>
+            </select>
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full sm:w-fit rounded-xl px-6 py-3 text-lg font-semibold border border-blue-300 hover:bg-blue-500 hover:text-white transition disabled:opacity-60"
+          >
+            {loading ? "Creating..." : "Create Classroom"}
+          </button>
+        </form>
+      </div>
 
       <div className="rounded-2xl border p-5">
         <div className="text-xl font-bold mb-4">My Classrooms</div>
-        <ul className="flex flex-col gap-3">
-          {DUMMY_CLASSROOMS.map((room) => (
-            <li
-              key={room.id}
-              className="rounded-xl border p-4 flex flex-col gap-4"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <span className="text-lg font-semibold">{room.name}</span>
-                <button
-                  type="button"
-                  onClick={() => handleGenerateCode(room)}
-                  className="text-black rounded-xl px-5 py-2.5 text-base font-semibold border border-blue-300 bg-white hover:bg-blue-500 hover:text-white transition"
-                >
-                  Generate join code
-                </button>
-              </div>
-              <div className="border-t pt-3">
-                <div className="text-white text-sm font-semibold text-gray-600 mb-2">
-                  Students in class ({DUMMY_STUDENTS_BY_CLASS[room.id]?.length ?? 0})
+        {classrooms.length === 0 ? (
+          <div className="text-sm text-gray-600">No classrooms yet.</div>
+        ) : (
+          <ul className="flex flex-col gap-3">
+            {classrooms.map((room) => (
+              <li key={room.id} className="rounded-xl border p-4 flex flex-col gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <span className="text-lg font-semibold">{room.name}</span>
+                  <span className="text-sm text-gray-600">
+                    Grade {room.grade} • {room.subject}
+                  </span>
                 </div>
-                <ul className="flex flex-col gap-1.5">
-                  {(DUMMY_STUDENTS_BY_CLASS[room.id] ?? []).map((s) => (
-                    <li key={s.id} className="text-white text-sm flex gap-2">
-                      <span className="text-white font-medium">{s.name}</span>
-                      <span className="text-white">{s.email}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </li>
-          ))}
-        </ul>
+                <div className="rounded-xl border border-green-200 bg-green-50 p-3 text-sm text-green-800">
+                  Join code: <span className="font-mono font-bold">{room.join_code}</span>
+                </div>
+                <div className="text-sm text-gray-600">
+                  Students: {room.members?.length ?? 0}
+                </div>
+                {room.members && room.members.length > 0 ? (
+                  <div className="rounded-xl border bg-gray-50 p-3">
+                    <div className="text-sm font-semibold text-gray-700 mb-2">
+                      Student Progress
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      {room.members.map((member) => (
+                        <div
+                          key={member.student_id}
+                          className="rounded-lg border bg-white p-3 text-sm"
+                        >
+                          <div className="font-semibold">
+                            {member.first_name} {member.last_name}
+                          </div>
+                          <div className="text-gray-600">{member.email}</div>
+                          <div className="text-gray-600">
+                            Quizzes completed: {member.completed_quizzes_count ?? 0}
+                          </div>
+                          {member.completed_quizzes && member.completed_quizzes.length > 0 ? (
+                            <div className="text-gray-600">
+                              Latest quizzes:{" "}
+                              {member.completed_quizzes
+                                .slice(0, 3)
+                                .map((quiz) => quiz.title)
+                                .join(", ")}
+                            </div>
+                          ) : null}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

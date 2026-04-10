@@ -1,51 +1,88 @@
 import { useState } from "react";
-import { validateJoinCode } from "../../utils/classroomCodes";
+import { apiFetch } from "../../api/client";
+import { useAuth } from "../../auth/UseAuth";
 
 export default function StudentJoin() {
+  const { token, user } = useAuth();
   const [code, setCode] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState(user?.email || "");
   const [message, setMessage] = useState(null); // { type: 'success'|'error', text }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     setMessage(null);
 
-    const result = validateJoinCode(code);
-    if (result) {
+    try {
+      await apiFetch("/student/classrooms/join", {
+        method: "POST",
+        token,
+        body: JSON.stringify({
+          class_code: code.trim().toUpperCase(),
+          first_name: firstName.trim(),
+          last_name: lastName.trim(),
+          email: email.trim().toLowerCase(),
+        }),
+      });
       setMessage({
         type: "success",
-        text: `You joined ${result.classroomName}! (Demo: not saved until backend is connected.)`,
+        text: "You joined the classroom!",
       });
       setCode("");
-    } else {
+      setFirstName("");
+      setLastName("");
+    } catch (err) {
       setMessage({
         type: "error",
-        text: "Invalid or expired code. Get a new code from your teacher. (Same browser: generate a code as teacher first.)",
+        text: err.message || "Invalid or expired code. Get a new code from your teacher.",
       });
     }
   }
 
   return (
     <div className="flex flex-col gap-6 max-w-md">
-      <div className="text-white text-3xl font-extrabold">Join with code</div>
-
-      <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
-        Enter the code your teacher shared. In this demo, the code must have been generated in this same browser (no backend yet).
-      </div>
+      <div className="text-3xl font-extrabold">Join with code</div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <label className="text-white text-lg font-semibold">Class code</label>
+        <label className="text-lg font-semibold">Class code</label>
         <input
           type="text"
-          placeholder="e.g. ABC123"
+          placeholder="e.g. ABCD1234"
           value={code}
           onChange={(e) => setCode(e.target.value)}
-          className="placeholder-white w-full p-3 border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-lg tracking-widest uppercase"
-          maxLength={6}
+          className="w-full p-3 border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-lg tracking-widest uppercase"
+          maxLength={12}
           autoComplete="off"
+          required
+        />
+        <input
+          type="text"
+          placeholder="First name"
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+          className="w-full p-3 border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
+        <input
+          type="text"
+          placeholder="Last name"
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+          className="w-full p-3 border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
+        />
+        <input
+          type="email"
+          placeholder="Account email used to log in"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full p-3 border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+          required
         />
         <button
           type="submit"
-          className=" text-white rounded-xl px-6 py-4 text-lg font-semibold border border-blue-300 hover:bg-blue-500 hover:text-white transition"
+          className="rounded-xl px-6 py-4 text-lg font-semibold border border-blue-300 hover:bg-blue-500 hover:text-white transition"
         >
           Join class
         </button>

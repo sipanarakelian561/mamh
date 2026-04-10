@@ -8,6 +8,7 @@ from app.api.v1.deps.auth import require_teacher
 from app.db.session import get_db
 from app.models.assignment import Assignment
 from app.models.assignment_completion import AssignmentCompletion
+from app.models.quiz_completion import QuizCompletion
 from app.models.classroom import Classroom
 from app.models.classroom_membership import ClassroomMembership
 from app.models.progress import StudentProgress
@@ -131,6 +132,17 @@ def list_classrooms(
                 .all()
             )
 
+            completed_quizzes = (
+                db.query(Quiz, QuizCompletion)
+                .join(QuizCompletion, QuizCompletion.quiz_id == Quiz.id)
+                .filter(
+                    QuizCompletion.student_id == m.student_id,
+                    Quiz.classroom_id == classroom.id,
+                )
+                .order_by(QuizCompletion.completed_at.desc())
+                .all()
+            )
+
             members.append(
                 {
                     "student_id": m.student_id,
@@ -150,6 +162,17 @@ def list_classrooms(
                             "title": assignment.title,
                         }
                         for assignment in completed_assignments
+                    ],
+                    "completed_quizzes_count": len(completed_quizzes),
+                    "completed_quizzes": [
+                        {
+                            "id": quiz.id,
+                            "title": quiz.title,
+                            "correct_count": completion.correct_count,
+                            "total_questions": completion.total_questions,
+                            "completed_at": completion.completed_at,
+                        }
+                        for quiz, completion in completed_quizzes
                     ],
                 }
             )

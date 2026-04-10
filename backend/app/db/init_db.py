@@ -11,6 +11,7 @@ from app.models.classroom_membership import ClassroomMembership  # noqa
 from app.models.assignment import Assignment  # noqa
 from app.models.assignment_completion import AssignmentCompletion  # noqa
 from app.models.quiz import Quiz, QuizQuestion  # noqa
+from app.models.quiz_completion import QuizCompletion  # noqa
 from app.core.config import settings
 from app.core.security import hash_password
 from app.db.session import SessionLocal
@@ -34,6 +35,7 @@ def _ensure_admin_user() -> None:
             password_hash=hash_password(settings.ADMIN_PASSWORD),
             role="admin",
             is_admin=True,
+            must_change_password=True,
         )
         db.add(user)
         db.commit()
