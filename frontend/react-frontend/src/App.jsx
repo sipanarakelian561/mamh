@@ -26,16 +26,13 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <div className="min-h-screen bg-gradient-to-b from-white to-pink-50">
+        <div className="min-h-screen">
           <Routes>
-            {/* Public routes */}
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
-            {/* Protected routes */}
             <Route element={<ProtectedRoute />}>
-              {/* Student routes */}
               <Route element={<RoleRoute role="student" />}>
                 <Route path="/student" element={<StudentLayout />}>
                   <Route index element={<Navigate to="overview" replace />} />
@@ -47,7 +44,6 @@ export default function App() {
                 </Route>
               </Route>
 
-              {/* Teacher routes */}
               <Route element={<RoleRoute role="teacher" />}>
                 <Route path="/teacher" element={<TeacherLayout />}>
                   <Route index element={<Navigate to="overview" replace />} />
@@ -59,7 +55,6 @@ export default function App() {
                 </Route>
               </Route>
 
-              {/* Admin routes */}
               <Route element={<RoleRoute role="admin" />}>
                 <Route path="/admin" element={<AdminLayout />}>
                   <Route index element={<Navigate to="overview" replace />} />
@@ -68,7 +63,6 @@ export default function App() {
               </Route>
             </Route>
 
-            {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
