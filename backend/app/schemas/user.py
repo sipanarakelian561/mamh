@@ -6,3 +6,4 @@ class UserOut(BaseModel):
     email: EmailStr
     role: str
     is_admin: bool
+    school_id: int | None = None

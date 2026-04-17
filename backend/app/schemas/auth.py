@@ -5,7 +5,8 @@ from pydantic import BaseModel, EmailStr, Field
 class RegisterRequest(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8, max_length=128)
-    role: Literal["student", "teacher", "admin"]
+    role: Literal["student", "teacher"]
+    school_id: int | None = Field(default=None, ge=1)
 
 class LoginRequest(BaseModel):
     email: EmailStr

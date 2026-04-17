@@ -66,6 +66,10 @@ def join_classroom(
     )
     if not classroom:
         raise HTTPException(status_code=404, detail="Invalid classroom code")
+    if student.school_id is None:
+        raise HTTPException(status_code=400, detail="Student is not assigned to a school")
+    if classroom.school_id != student.school_id:
+        raise HTTPException(status_code=403, detail="Classroom belongs to another school")
 
     existing = (
         db.query(ClassroomMembership)

@@ -21,6 +21,7 @@ import TeacherQuizzes from "./pages/teacher/Quizzes.jsx";
 import TeacherClassroom from "./pages/teacher/Classroom.jsx";
 import TeacherChangePassword from "./pages/teacher/ChangePassword.jsx";
 import AdminOverview from "./pages/admin/Overview.jsx";
+import AdminChangePassword from "./pages/admin/ChangePassword.jsx";
 
 export default function App() {
   return (
@@ -60,10 +61,11 @@ export default function App() {
               </Route>
 
               {/* Admin routes */}
-              <Route element={<RoleRoute role="admin" />}>
+              <Route element={<RoleRoute roles={["admin", "super_admin"]} />}>
                 <Route path="/admin" element={<AdminLayout />}>
                   <Route index element={<Navigate to="overview" replace />} />
                   <Route path="overview" element={<AdminOverview />} />
+                  <Route path="password" element={<AdminChangePassword />} />
                 </Route>
               </Route>
             </Route>

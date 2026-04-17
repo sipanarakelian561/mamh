@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "./UseAuth.jsx";
 
-export default function RoleRoute({ role }) {
+export default function RoleRoute({ role, roles }) {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -16,7 +16,8 @@ export default function RoleRoute({ role }) {
     return <Navigate to="/login" replace />;
   }
 
-  if (role && user.role !== role) {
+  const allowedRoles = roles || (role ? [role] : null);
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
     return <Navigate to="/" replace />;
   }
 

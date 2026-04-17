@@ -71,8 +71,12 @@ def create_classroom(
     db: Session = Depends(get_db),
     teacher: User = Depends(require_teacher),
 ):
+    if teacher.school_id is None:
+        raise HTTPException(status_code=400, detail="Teacher is not assigned to a school")
+
     classroom = Classroom(
         teacher_id=teacher.id,
+        school_id=teacher.school_id,
         name=payload.name,
         grade=payload.grade,
         subject=payload.subject,

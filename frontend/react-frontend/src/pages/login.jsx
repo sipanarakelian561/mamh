@@ -16,7 +16,7 @@ export default function LogIn() {
 	// Navigate after successful login/register
 	useEffect(() => {
 		if (user) {
-			if (user.role === "admin") {
+			if (user.role === "admin" || user.role === "super_admin") {
 				navigate("/admin");
 			} else if (user.role === "teacher") {
 				navigate("/teacher");

@@ -11,6 +11,7 @@ class Classroom(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     teacher_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    school_id: Mapped[int] = mapped_column(ForeignKey("schools.id"), index=True)
     name: Mapped[str] = mapped_column(String(120))
     grade: Mapped[int] = mapped_column(Integer, index=True)
     subject: Mapped[str] = mapped_column(String(30), index=True)

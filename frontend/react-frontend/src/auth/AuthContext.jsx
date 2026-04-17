@@ -24,6 +24,7 @@ function userFromToken(jwtToken) {
     role: payload.role,
     is_admin: Boolean(payload.adm),
     must_change_password: Boolean(payload.pwd),
+    school_id: payload.sch ?? null,
   };
 }
 

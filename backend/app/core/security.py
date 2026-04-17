@@ -16,6 +16,7 @@ def create_access_token(
     role: str,
     is_admin: bool,
     must_change_password: bool = False,
+    school_id: int | None = None,
     expires_minutes: int | None = None,
 ) -> str:
     now = datetime.now(timezone.utc)
@@ -27,6 +28,7 @@ def create_access_token(
         "role": role,
         "adm": bool(is_admin),
         "pwd": bool(must_change_password),
+        "sch": school_id,
         "iat": now,
         "exp": expire,
     }
@@ -45,12 +47,14 @@ def decode_token(token: str) -> dict:
         raise ValueError("Invalid token subject")
 
     role = payload.get("role")
-    if role not in {"student", "teacher", "admin"}:
+    if role not in {"student", "teacher", "admin", "super_admin"}:
         raise ValueError("Invalid token role")
 
     if "adm" in payload and not isinstance(payload["adm"], bool):
         raise ValueError("Invalid admin claim")
     if "pwd" in payload and not isinstance(payload["pwd"], bool):
         raise ValueError("Invalid password-change claim")
+    if "sch" in payload and payload["sch"] is not None and not isinstance(payload["sch"], int):
+        raise ValueError("Invalid school claim")
 
     return payload

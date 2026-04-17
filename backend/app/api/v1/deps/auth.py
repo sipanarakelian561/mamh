@@ -28,7 +28,12 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_
 
     token_role = payload.get("role")
     token_admin = payload.get("adm", False)
-    if token_role != user.role or bool(token_admin) != bool(user.is_admin):
+    token_school_id = payload.get("sch")
+    if (
+        token_role != user.role
+        or bool(token_admin) != bool(user.is_admin)
+        or token_school_id != user.school_id
+    ):
         raise HTTPException(status_code=401, detail="Token no longer matches user permissions")
     return user
 
@@ -45,4 +50,16 @@ def require_student(user: User = Depends(get_current_user)) -> User:
 def require_admin(user: User = Depends(get_current_user)) -> User:
     if not user.is_admin:
         raise HTTPException(status_code=403, detail="Admin access required")
+    return user
+
+
+def require_school_admin(user: User = Depends(get_current_user)) -> User:
+    if user.role != "admin" or not user.is_admin:
+        raise HTTPException(status_code=403, detail="School admin access required")
+    return user
+
+
+def require_super_admin(user: User = Depends(get_current_user)) -> User:
+    if user.role != "super_admin" or not user.is_admin:
+        raise HTTPException(status_code=403, detail="Super admin access required")
     return user

@@ -144,6 +144,7 @@ def test_teacher_progress_only_includes_their_students(client, db_session):
 
     class1 = Classroom(
         teacher_id=teacher1.id,
+        school_id=teacher1.school_id,
         name="Math 101",
         grade=5,
         subject="math",
@@ -151,6 +152,7 @@ def test_teacher_progress_only_includes_their_students(client, db_session):
     )
     class2 = Classroom(
         teacher_id=teacher2.id,
+        school_id=teacher2.school_id,
         name="Science 101",
         grade=5,
         subject="science",
@@ -187,7 +189,12 @@ def test_teacher_progress_only_includes_their_students(client, db_session):
     )
     db_session.commit()
 
-    token = create_access_token(subject=str(teacher1.id), role="teacher", is_admin=False)
+    token = create_access_token(
+        subject=str(teacher1.id),
+        role="teacher",
+        is_admin=False,
+        school_id=teacher1.school_id,
+    )
     response = client.get(
         "/api/v1/teacher/students/progress",
         headers={"Authorization": f"Bearer {token}"},

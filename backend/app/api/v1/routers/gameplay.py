@@ -15,6 +15,42 @@ router = APIRouter(prefix="/game", tags=["gameplay"])
 _PROBLEM_TTL_MINUTES = 10
 # {student_id: {problem_id: (answer, expires_at)}}
 _problem_answers: dict[int, dict[str, tuple[int, datetime]]] = {}
+_LOCAL_QUIZ = {
+    "quiz_id": "local-math-1",
+    "title": "Local Math Warmup",
+    "questions": [
+        {
+            "id": 1,
+            "prompt": "What is 2 + 2?",
+            "answers": ["1", "4", "5", "12"],
+            "correct_index": 1,
+        },
+        {
+            "id": 2,
+            "prompt": "What is 5 x 3?",
+            "answers": ["8", "12", "15", "20"],
+            "correct_index": 2,
+        },
+        {
+            "id": 3,
+            "prompt": "What is 10 - 7?",
+            "answers": ["2", "3", "4", "5"],
+            "correct_index": 1,
+        },
+        {
+            "id": 4,
+            "prompt": "What is 9 / 3?",
+            "answers": ["2", "3", "6", "1"],
+            "correct_index": 1,
+        },
+        {
+            "id": 5,
+            "prompt": "What is 6 + 7?",
+            "answers": ["11", "14", "13", "12"],
+            "correct_index": 2,
+        },
+    ],
+}
 
 
 def _purge_expired(student_id: int) -> None:
@@ -27,6 +63,11 @@ def _purge_expired(student_id: int) -> None:
         student_map.pop(pid, None)
     if not student_map:
         _problem_answers.pop(student_id, None)
+
+
+@router.get("/local-quiz")
+def get_local_quiz():
+    return _LOCAL_QUIZ
 
 
 @router.post("/problems")
