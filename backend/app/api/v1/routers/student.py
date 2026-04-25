@@ -11,10 +11,11 @@ from app.models.classroom_membership import ClassroomMembership
 from app.models.quiz import Quiz, QuizQuestion
 from app.models.user import User
 from app.schemas.classroom import ClassroomJoinRequest
-from app.schemas.inventory import ItemAdd, ItemEquip
+from app.schemas.inventory import ItemAdd, ItemEquip, ItemPurchase
+from app.schemas.progress import ProgressOut
 from app.schemas.quiz import QuizSubmitRequest
-from app.services.inventory_service import add_item, list_items, set_equipped
-from app.services.progress_service import get_or_create_progress
+from app.services.inventory_service import list_items, purchase_item, set_equipped
+from app.services.progress_service import QUIZ_COMPLETION_XP, add_xp, build_progress_snapshot
 
 router = APIRouter(prefix="/student", tags=["student"])
 
@@ -37,13 +38,18 @@ def student_progress(
     db: Session = Depends(get_db),
     student: User = Depends(require_student),
 ):
-    p = get_or_create_progress(db, student.id)
-    return {
-        "student_id": student.id,
-        "xp": p.xp,
-        "level": p.level,
-        "problems_solved": p.problems_solved,
-    }
+    snapshot = build_progress_snapshot(db, student.id)
+    return ProgressOut(
+        student_id=snapshot.student_id,
+        xp=snapshot.total_xp,
+        level=snapshot.current_level,
+        total_xp=snapshot.total_xp,
+        currency_balance=snapshot.currency_balance,
+        current_level=snapshot.current_level,
+        xp_to_next_level=snapshot.xp_to_next_level,
+        xp_progress_percentage=snapshot.xp_progress_percentage,
+        problems_solved=snapshot.problems_solved,
+    )
 
 
 @router.post("/classrooms/join")
@@ -137,8 +143,29 @@ def student_add_item(
     db: Session = Depends(get_db),
     student: User = Depends(require_student),
 ):
-    item = add_item(db, student.id, payload.item_id, payload.name, payload.slot)
-    return {"id": item.id, "item_id": item.item_id, "equipped": item.equipped}
+    raise HTTPException(status_code=403, detail="Direct item grants are disabled. Use the purchase endpoint.")
+
+
+@router.post("/inventory/purchase")
+def student_purchase_item(
+    payload: ItemPurchase,
+    db: Session = Depends(get_db),
+    student: User = Depends(require_student),
+):
+    item, currency_balance = purchase_item(
+        db,
+        student.id,
+        payload.item_id,
+        payload.name,
+        payload.slot,
+        payload.cost,
+    )
+    return {
+        "id": item.id,
+        "item_id": item.item_id,
+        "equipped": item.equipped,
+        "currency_balance": currency_balance,
+    }
 
 
 @router.get("/inventory")
@@ -412,6 +439,7 @@ def submit_quiz_answers(
         )
         .first()
     )
+    newly_completed = existing is None
     if existing:
         existing.correct_count = correct_count
         existing.total_questions = len(question_map)
@@ -426,10 +454,20 @@ def submit_quiz_answers(
         )
     db.commit()
 
+    xp_update = None
+    if newly_completed:
+        xp_update = add_xp(db, student.id, QUIZ_COMPLETION_XP)
+
     return {
         "quiz_id": quiz.id,
         "total_questions": len(question_map),
         "answered_questions": len(results),
         "correct_count": correct_count,
+        "xp": xp_update.total_xp if xp_update else student.total_xp,
+        "level": xp_update.current_level if xp_update else student.current_level,
+        "xp_awarded": QUIZ_COMPLETION_XP if newly_completed else 0,
+        "level_up": xp_update.level_up if xp_update else False,
+        "current_level": xp_update.current_level if xp_update else student.current_level,
+        "total_xp": xp_update.total_xp if xp_update else student.total_xp,
         "results": results,
     }

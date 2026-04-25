@@ -3,7 +3,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-Subject = Literal["math", "science", "reading", "writing"]
+Subject = Literal["math", "science", "reading"]
 
 
 class QuizQuestionCreate(BaseModel):

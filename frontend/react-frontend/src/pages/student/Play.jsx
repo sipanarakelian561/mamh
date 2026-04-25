@@ -14,10 +14,13 @@ export default function StudentPlay() {
     const mode = params.get("mode") || "";
     const quizId = params.get("quizId") || "";
     const qp = new URLSearchParams();
+    const apiBaseUrl =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
     if (mode) qp.set("mode", mode);
     if (quizId) qp.set("quizId", quizId);
     if (token) qp.set("token", token);
-    return `/godot-game/index.html?${qp.toString()}`;
+    if (apiBaseUrl) qp.set("apiBaseUrl", apiBaseUrl);
+    return `/official-game/OfficialGame.html?${qp.toString()}`;
   }, [location.search, token]);
 
   function enterFullscreen() {
@@ -48,7 +51,7 @@ export default function StudentPlay() {
           className="game-shell mt-4 w-full rounded-2xl overflow-hidden border"
         >
           <div className="p-3 border-b flex items-center justify-between">
-            <div className="text-sm text-gray-600">Dino Game</div>
+            <div className="text-sm text-gray-600">Official Game</div>
             <button
               onClick={enterFullscreen}
               disabled={!ready}
@@ -59,7 +62,7 @@ export default function StudentPlay() {
           </div>
           <iframe
             src={iframeSrc}
-            title="Dino Game"
+            title="Official Game"
             allow="fullscreen"
             allowFullScreen
             onLoad={() => setReady(true)}

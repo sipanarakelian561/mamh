@@ -1,4 +1,4 @@
-from sqlalchemy import text
+from sqlalchemy import inspect, text
 
 from app.db.session import engine
 from app.db.base import Base
@@ -19,10 +19,11 @@ from app.db.session import SessionLocal
 
 def init_db() -> None:
     Base.metadata.create_all(bind=engine)
-    _run_sqlite_migrations()
+    _run_migrations()
     _ensure_default_school()
     _ensure_admin_user()
     _backfill_school_ids()
+    _backfill_total_xp()
 
 
 def _ensure_admin_user() -> None:
@@ -83,14 +84,10 @@ def _backfill_school_ids() -> None:
 
 
 def _column_exists(conn, table_name: str, column_name: str) -> bool:
-    rows = conn.execute(text(f"PRAGMA table_info({table_name})")).fetchall()
-    return any(row[1] == column_name for row in rows)
+    return column_name in {column["name"] for column in inspect(conn).get_columns(table_name)}
 
 
-def _run_sqlite_migrations() -> None:
-    if not str(engine.url).startswith("sqlite"):
-        return
-
+def _run_migrations() -> None:
     with engine.begin() as conn:
         if _column_exists(conn, "assignments", "classroom_id") is False:
             conn.execute(text("ALTER TABLE assignments ADD COLUMN classroom_id INTEGER"))
@@ -106,3 +103,32 @@ def _run_sqlite_migrations() -> None:
 
         if _column_exists(conn, "classrooms", "school_id") is False:
             conn.execute(text("ALTER TABLE classrooms ADD COLUMN school_id INTEGER"))
+
+        if _column_exists(conn, "users", "total_xp") is False:
+            conn.execute(text("ALTER TABLE users ADD COLUMN total_xp INTEGER DEFAULT 0"))
+
+        if _column_exists(conn, "users", "currency_balance") is False:
+            conn.execute(text("ALTER TABLE users ADD COLUMN currency_balance INTEGER DEFAULT 0"))
+
+
+def _backfill_total_xp() -> None:
+    with SessionLocal() as db:
+        rows = db.execute(
+            text(
+                """
+                SELECT users.id AS user_id, users.total_xp AS total_xp, student_progress.xp AS progress_xp
+                FROM users
+                LEFT JOIN student_progress ON student_progress.student_id = users.id
+                WHERE users.role = 'student'
+                """
+            )
+        ).all()
+
+        for row in rows:
+            inferred_total_xp = max(0, row.progress_xp or 0)
+            if (row.total_xp or 0) == 0 and inferred_total_xp > 0:
+                user = db.get(User, row.user_id)
+                if user:
+                    user.total_xp = inferred_total_xp
+
+        db.commit()

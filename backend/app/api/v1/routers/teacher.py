@@ -11,12 +11,12 @@ from app.models.assignment_completion import AssignmentCompletion
 from app.models.quiz_completion import QuizCompletion
 from app.models.classroom import Classroom
 from app.models.classroom_membership import ClassroomMembership
-from app.models.progress import StudentProgress
 from app.models.quiz import Quiz, QuizQuestion
 from app.models.user import User
 from app.schemas.assignment import AssignmentCreate
 from app.schemas.classroom import ClassroomCreate
 from app.schemas.quiz import QuizCreate
+from app.services.progress_service import build_progress_snapshot
 
 router = APIRouter(prefix="/teacher", tags=["teacher"])
 
@@ -47,21 +47,26 @@ def all_student_progress(
     teacher: User = Depends(require_teacher),
 ):
     rows = (
-        db.query(StudentProgress)
-        .join(ClassroomMembership, ClassroomMembership.student_id == StudentProgress.student_id)
+        db.query(User)
+        .join(ClassroomMembership, ClassroomMembership.student_id == User.id)
         .join(Classroom, Classroom.id == ClassroomMembership.classroom_id)
-        .filter(Classroom.teacher_id == teacher.id)
+        .filter(Classroom.teacher_id == teacher.id, User.role == "student")
         .distinct()
         .all()
     )
     return [
         {
-            "student_id": r.student_id,
-            "xp": r.xp,
-            "level": r.level,
-            "problems_solved": r.problems_solved,
+            "student_id": snapshot.student_id,
+            "xp": snapshot.total_xp,
+            "level": snapshot.current_level,
+            "total_xp": snapshot.total_xp,
+            "currency_balance": snapshot.currency_balance,
+            "current_level": snapshot.current_level,
+            "xp_to_next_level": snapshot.xp_to_next_level,
+            "xp_progress_percentage": snapshot.xp_progress_percentage,
+            "problems_solved": snapshot.problems_solved,
         }
-        for r in rows
+        for snapshot in (build_progress_snapshot(db, student.id) for student in rows)
     ]
 
 
@@ -119,11 +124,7 @@ def list_classrooms(
 
         members = []
         for m in memberships:
-            progress = (
-                db.query(StudentProgress)
-                .filter(StudentProgress.student_id == m.student_id)
-                .first()
-            )
+            progress = build_progress_snapshot(db, m.student_id)
 
             completed_assignments = (
                 db.query(Assignment)
@@ -155,9 +156,14 @@ def list_classrooms(
                     "email": m.email,
                     "joined_at": m.joined_at,
                     "progress": {
-                        "xp": progress.xp if progress else 0,
-                        "level": progress.level if progress else 1,
-                        "problems_solved": progress.problems_solved if progress else 0,
+                        "xp": progress.total_xp,
+                        "total_xp": progress.total_xp,
+                        "currency_balance": progress.currency_balance,
+                        "level": progress.current_level,
+                        "current_level": progress.current_level,
+                        "xp_to_next_level": progress.xp_to_next_level,
+                        "xp_progress_percentage": progress.xp_progress_percentage,
+                        "problems_solved": progress.problems_solved,
                     },
                     "completed_assignments_count": len(completed_assignments),
                     "completed_assignments": [

@@ -23,7 +23,7 @@ export default function TeacherClassrooms() {
 
   useEffect(() => {
     loadClassrooms();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, []);
 
   async function handleCreate(e) {
