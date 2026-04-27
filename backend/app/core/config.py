@@ -1,3 +1,5 @@
+import json
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import field_validator
 
@@ -47,6 +49,11 @@ class Settings(BaseSettings):
     @classmethod
     def split_allowed_origins(cls, value):
         if isinstance(value, str):
+            stripped = value.strip()
+            if not stripped:
+                return []
+            if stripped.startswith("["):
+                return json.loads(stripped)
             return [v.strip() for v in value.split(",") if v.strip()]
         return value
 

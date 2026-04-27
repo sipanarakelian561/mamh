@@ -11,10 +11,10 @@ from app.models.classroom_membership import ClassroomMembership
 from app.models.quiz import Quiz, QuizQuestion
 from app.models.user import User
 from app.schemas.classroom import ClassroomJoinRequest
-from app.schemas.inventory import ItemAdd, ItemEquip, ItemPurchase
+from app.schemas.inventory import ItemAdd, ItemEquip, ItemPurchase, ItemPurchaseOut, ShopItemOut
 from app.schemas.progress import ProgressOut
 from app.schemas.quiz import QuizSubmitRequest
-from app.services.inventory_service import list_items, purchase_item, set_equipped
+from app.services.inventory_service import get_shop_catalog, list_items, purchase_item, set_equipped
 from app.services.progress_service import QUIZ_COMPLETION_XP, add_xp, build_progress_snapshot
 
 router = APIRouter(prefix="/student", tags=["student"])
@@ -146,23 +146,26 @@ def student_add_item(
     raise HTTPException(status_code=403, detail="Direct item grants are disabled. Use the purchase endpoint.")
 
 
-@router.post("/inventory/purchase")
+@router.get("/shop/items", response_model=list[ShopItemOut])
+def student_shop_items(
+    db: Session = Depends(get_db),
+    student: User = Depends(require_student),
+):
+    return get_shop_catalog(db, student.id)
+
+
+@router.post("/inventory/purchase", response_model=ItemPurchaseOut)
 def student_purchase_item(
     payload: ItemPurchase,
     db: Session = Depends(get_db),
     student: User = Depends(require_student),
 ):
-    item, currency_balance = purchase_item(
-        db,
-        student.id,
-        payload.item_id,
-        payload.name,
-        payload.slot,
-        payload.cost,
-    )
+    item, currency_balance = purchase_item(db, student.id, payload.item_id)
     return {
         "id": item.id,
         "item_id": item.item_id,
+        "name": item.name,
+        "slot": item.slot,
         "equipped": item.equipped,
         "currency_balance": currency_balance,
     }

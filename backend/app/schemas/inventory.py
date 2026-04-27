@@ -14,6 +14,20 @@ class ItemEquip(BaseModel):
 
 class ItemPurchase(BaseModel):
     item_id: str = Field(min_length=1, max_length=50)
-    name: str = Field(min_length=1, max_length=100)
-    slot: str = Field(min_length=1, max_length=30)
-    cost: int = Field(gt=0)
+
+
+class ShopItemOut(BaseModel):
+    item_id: str
+    name: str
+    slot: str
+    cost: int
+    owned: bool = False
+
+
+class ItemPurchaseOut(BaseModel):
+    id: int
+    item_id: str
+    name: str
+    slot: str
+    equipped: bool
+    currency_balance: int

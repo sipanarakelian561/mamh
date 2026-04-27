@@ -1,10 +1,10 @@
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
+import { getApiBaseUrl } from "./config";
 
 export async function apiFetch(path, options = {}) {
   const { token, headers = {}, ...rest } = options;
+  const apiBaseUrl = getApiBaseUrl();
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${apiBaseUrl}${path}`, {
     ...rest,
     headers: {
       "Content-Type": "application/json",

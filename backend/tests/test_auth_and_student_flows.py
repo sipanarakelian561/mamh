@@ -55,7 +55,7 @@ def test_student_progress_returns_default_values(client):
     assert body["total_xp"] == 0
     assert body["currency_balance"] == 0
     assert body["current_level"] == 1
-    assert body["xp_to_next_level"] == 100
+    assert body["xp_to_next_level"] == 15
     assert body["xp_progress_percentage"] == 0
     assert body["problems_solved"] == 0
 
@@ -92,14 +92,14 @@ def test_inventory_equip_unequips_other_item_in_same_slot(client):
 
     first_purchase = client.post(
         "/api/v1/student/inventory/purchase",
-        json={"item_id": "hat_1", "name": "Wizard Hat", "slot": "head", "cost": 10},
+        json={"item_id": "hat_1"},
         headers=headers,
     )
     assert first_purchase.status_code == 200, first_purchase.text
 
     second_purchase = client.post(
         "/api/v1/student/inventory/purchase",
-        json={"item_id": "hat_2", "name": "Knight Helm", "slot": "head", "cost": 10},
+        json={"item_id": "hat_2"},
         headers=headers,
     )
     assert second_purchase.status_code == 200, second_purchase.text
@@ -280,8 +280,9 @@ def test_complete_run_awards_xp_money_and_levels(client):
     assert body["money_awarded"] == 20
     assert body["total_xp"] == 15
     assert body["currency_balance"] == 20
-    assert body["current_level"] == 1
-    assert body["level_up"] is False
+    assert body["current_level"] == 2
+    assert body["xp_to_next_level"] == 25
+    assert body["level_up"] is True
 
 
 def test_student_can_purchase_item_with_currency(client):
@@ -295,7 +296,7 @@ def test_student_can_purchase_item_with_currency(client):
 
     purchase = client.post(
         "/api/v1/student/inventory/purchase",
-        json={"item_id": "hat_3", "name": "Shop Hat", "slot": "head", "cost": 15},
+        json={"item_id": "hat_3"},
         headers=headers,
     )
     assert purchase.status_code == 200, purchase.text
@@ -304,6 +305,59 @@ def test_student_can_purchase_item_with_currency(client):
     progress = client.get("/api/v1/student/progress", headers=headers)
     assert progress.status_code == 200, progress.text
     assert progress.json()["currency_balance"] == 5
+
+
+def test_student_shop_catalog_marks_owned_items(client):
+    _register_user(client, "catalog@example.com", "password123", "student")
+    token = _login_user(client, "catalog@example.com", "password123")
+    headers = {"Authorization": f"Bearer {token}"}
+
+    reward = client.post("/api/v1/game/complete-run", json={"placement": 1}, headers=headers)
+    assert reward.status_code == 200, reward.text
+
+    purchase = client.post(
+        "/api/v1/student/inventory/purchase",
+        json={"item_id": "hat_1"},
+        headers=headers,
+    )
+    assert purchase.status_code == 200, purchase.text
+
+    catalog = client.get("/api/v1/student/shop/items", headers=headers)
+    assert catalog.status_code == 200, catalog.text
+    by_id = {item["item_id"]: item for item in catalog.json()}
+    assert by_id["hat_1"]["owned"] is True
+    assert by_id["hat_1"]["cost"] == 10
+    assert by_id["hat_2"]["owned"] is False
+
+
+def test_student_purchase_rejects_duplicate_and_invalid_items(client):
+    _register_user(client, "shopguard@example.com", "password123", "student")
+    token = _login_user(client, "shopguard@example.com", "password123")
+    headers = {"Authorization": f"Bearer {token}"}
+
+    reward = client.post("/api/v1/game/complete-run", json={"placement": 1}, headers=headers)
+    assert reward.status_code == 200, reward.text
+
+    first_purchase = client.post(
+        "/api/v1/student/inventory/purchase",
+        json={"item_id": "hat_1"},
+        headers=headers,
+    )
+    assert first_purchase.status_code == 200, first_purchase.text
+
+    duplicate = client.post(
+        "/api/v1/student/inventory/purchase",
+        json={"item_id": "hat_1"},
+        headers=headers,
+    )
+    assert duplicate.status_code == 409, duplicate.text
+
+    invalid = client.post(
+        "/api/v1/student/inventory/purchase",
+        json={"item_id": "not-a-real-item"},
+        headers=headers,
+    )
+    assert invalid.status_code == 404, invalid.text
 
 
 def test_quiz_completion_awards_xp_once(client, db_session):
@@ -378,6 +432,7 @@ def test_quiz_completion_awards_xp_once(client, db_session):
     assert first.status_code == 200, first.text
     assert first.json()["xp_awarded"] == 15
     assert first.json()["total_xp"] == 15
+    assert first.json()["current_level"] == 2
 
     second = client.post(
         f"/api/v1/student/quizzes/{quiz.id}/submit",

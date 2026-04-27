@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "../../auth/UseAuth";
+import { getApiBaseUrl } from "../../api/config";
 
 export default function StudentPlay() {
   const { token } = useAuth();
@@ -14,8 +15,7 @@ export default function StudentPlay() {
     const mode = params.get("mode") || "";
     const quizId = params.get("quizId") || "";
     const qp = new URLSearchParams();
-    const apiBaseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
+    const apiBaseUrl = getApiBaseUrl();
     if (mode) qp.set("mode", mode);
     if (quizId) qp.set("quizId", quizId);
     if (token) qp.set("token", token);

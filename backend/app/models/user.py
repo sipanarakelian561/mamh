@@ -1,5 +1,3 @@
-import math
-
 from sqlalchemy import String, Boolean, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -22,7 +20,7 @@ class User(Base):
     @staticmethod
     def xp_required_for_level(level: int) -> int:
         safe_level = max(1, level)
-        return math.ceil(100 * (1.1 ** (safe_level - 1)))
+        return 5 + (safe_level * 10)
 
     @property
     def current_level(self) -> int:
