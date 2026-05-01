@@ -28,6 +28,7 @@ from app.models.classroom_membership import ClassroomMembership  # noqa: F401
 from app.models.inventory import InventoryItem  # noqa: F401
 from app.models.progress import StudentProgress  # noqa: F401
 from app.models.quiz import Quiz, QuizQuestion  # noqa: F401
+from app.models.questions import GameplayQuestion  # noqa: F401
 from app.models.user import User  # noqa: F401
 
 

@@ -22,6 +22,7 @@ from app.schemas.admin import (
     AdminCreateUserResponse,
     AdminSchoolCreateRequest,
     AdminSchoolOut,
+    AdminUpdateUserRequest,
     AdminUserOut,
 )
 
@@ -121,6 +122,10 @@ def create_user(
 
     if admin.role != "super_admin" and role == "admin":
         raise HTTPException(status_code=403, detail="Only super admins can create school admins")
+    if role == "student" and payload.grade_level is None:
+        raise HTTPException(status_code=400, detail="grade_level is required for student accounts")
+    if role != "student" and payload.grade_level is not None:
+        raise HTTPException(status_code=400, detail="grade_level can only be set for student accounts")
 
     school = _resolve_school_scope(db, admin, payload.school_id)
     if school is None:
@@ -136,6 +141,7 @@ def create_user(
         is_admin=is_admin,
         must_change_password=True,
         school_id=school.id,
+        grade_level=payload.grade_level if role == "student" else None,
     )
     db.add(user)
     db.commit()
@@ -147,6 +153,7 @@ def create_user(
         is_admin=user.is_admin,
         school_id=user.school_id,
         school_name=school.name,
+        grade_level=user.grade_level,
     )
 
 
@@ -181,9 +188,43 @@ def list_users(
             must_change_password=user.must_change_password,
             school_id=user.school_id,
             school_name=school_name,
+            grade_level=user.grade_level,
         )
         for user, school_name in rows
     ]
+
+
+@router.patch("/users/{user_id}", response_model=AdminUserOut)
+def update_user(
+    user_id: int,
+    payload: AdminUpdateUserRequest,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin),
+):
+    user = db.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if admin.role != "super_admin" and user.school_id != admin.school_id:
+        raise HTTPException(status_code=403, detail="Cannot manage a user from another school")
+    if payload.grade_level is not None and user.role != "student":
+        raise HTTPException(status_code=400, detail="grade_level can only be updated for student accounts")
+
+    user.grade_level = payload.grade_level
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    school_name = db.query(School.name).filter(School.id == user.school_id).scalar()
+    return AdminUserOut(
+        id=user.id,
+        email=user.email,
+        role=user.role,
+        is_admin=user.is_admin,
+        must_change_password=user.must_change_password,
+        school_id=user.school_id,
+        school_name=school_name,
+        grade_level=user.grade_level,
+    )
 
 
 @router.delete("/users/{user_id}")

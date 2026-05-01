@@ -65,6 +65,7 @@ def all_student_progress(
             "xp_to_next_level": snapshot.xp_to_next_level,
             "xp_progress_percentage": snapshot.xp_progress_percentage,
             "problems_solved": snapshot.problems_solved,
+            "grade_level": snapshot.student_grade_level,
         }
         for snapshot in (build_progress_snapshot(db, student.id) for student in rows)
     ]
@@ -154,6 +155,7 @@ def list_classrooms(
                     "first_name": m.first_name,
                     "last_name": m.last_name,
                     "email": m.email,
+                    "grade_level": progress.student_grade_level,
                     "joined_at": m.joined_at,
                     "progress": {
                         "xp": progress.total_xp,

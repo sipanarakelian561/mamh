@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import homeBackground from "../assets/mamh_homescreen.jpeg";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -8,7 +9,7 @@ export default function Home() {
       <div
         className="absolute inset-0"
         style={{
-          backgroundImage: "url('/home-screen-bg.png')",
+          backgroundImage: `url(${homeBackground})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
@@ -30,21 +31,21 @@ export default function Home() {
               onClick={() => navigate("/login", { state: { role: "student" } })}
               className="w-full rounded-xl px-8 py-4 text-lg font-semibold border border-white text-white bg-white/10 backdrop-blur-md hover:bg-blue-500 hover:text-white transition"
             >
-              Student login
+              Student
             </button>
 
             <button
               onClick={() => navigate("/login", { state: { role: "teacher" } })}
               className="w-full rounded-xl px-8 py-4 text-lg font-semibold border border-white text-white bg-white/10 backdrop-blur-md hover:bg-blue-500 hover:text-white transition"
             >
-              Teacher login
+              Teacher
             </button>
 
             <button
-              onClick={() => navigate("/register")}
+              onClick={() => navigate("/login", { state: { role: "admin" } })}
               className="w-full rounded-xl px-8 py-4 text-lg font-semibold border border-white text-white bg-white/10 backdrop-blur-md hover:bg-blue-500 hover:text-white transition"
             >
-              Create account
+              Admin
             </button>
           </div>
         </section>

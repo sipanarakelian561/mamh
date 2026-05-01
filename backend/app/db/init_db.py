@@ -13,8 +13,10 @@ from app.models.assignment import Assignment  # noqa
 from app.models.assignment_completion import AssignmentCompletion  # noqa
 from app.models.quiz import Quiz, QuizQuestion  # noqa
 from app.models.quiz_completion import QuizCompletion  # noqa
+from app.models.questions import GameplayQuestion  # noqa
 from app.core.config import settings
 from app.core.security import hash_password
+from app.db.seed_questions import seed_gameplay_questions
 from app.db.session import SessionLocal
 
 def init_db() -> None:
@@ -23,6 +25,7 @@ def init_db() -> None:
     _ensure_default_school()
     _ensure_admin_user()
     _backfill_school_ids()
+    _seed_gameplay_questions()
     _backfill_total_xp()
 
 
@@ -101,6 +104,9 @@ def _run_migrations() -> None:
         if _column_exists(conn, "users", "school_id") is False:
             conn.execute(text("ALTER TABLE users ADD COLUMN school_id INTEGER"))
 
+        if _column_exists(conn, "users", "grade_level") is False:
+            conn.execute(text("ALTER TABLE users ADD COLUMN grade_level INTEGER"))
+
         if _column_exists(conn, "classrooms", "school_id") is False:
             conn.execute(text("ALTER TABLE classrooms ADD COLUMN school_id INTEGER"))
 
@@ -109,6 +115,17 @@ def _run_migrations() -> None:
 
         if _column_exists(conn, "users", "currency_balance") is False:
             conn.execute(text("ALTER TABLE users ADD COLUMN currency_balance INTEGER DEFAULT 0"))
+
+        if _column_exists(conn, "users", "starter_monster") is False:
+            conn.execute(text("ALTER TABLE users ADD COLUMN starter_monster VARCHAR(50)"))
+
+        if _column_exists(conn, "users", "equipped_monster") is False:
+            conn.execute(text("ALTER TABLE users ADD COLUMN equipped_monster VARCHAR(50)"))
+
+
+def _seed_gameplay_questions() -> None:
+    with SessionLocal() as db:
+        seed_gameplay_questions(db)
 
 
 def _backfill_total_xp() -> None:

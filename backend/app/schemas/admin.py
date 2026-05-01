@@ -9,6 +9,7 @@ class AdminCreateUserRequest(BaseModel):
     role: Literal["student", "teacher", "admin"]
     password: str = Field(min_length=8, max_length=128)
     school_id: int | None = Field(default=None, ge=1)
+    grade_level: int | None = Field(default=None, ge=1, le=6)
 
 
 class AdminCreateUserResponse(BaseModel):
@@ -18,6 +19,7 @@ class AdminCreateUserResponse(BaseModel):
     is_admin: bool
     school_id: int | None
     school_name: str | None
+    grade_level: int | None
 
 
 class AdminUserOut(BaseModel):
@@ -28,6 +30,11 @@ class AdminUserOut(BaseModel):
     must_change_password: bool
     school_id: int | None
     school_name: str | None
+    grade_level: int | None
+
+
+class AdminUpdateUserRequest(BaseModel):
+    grade_level: int | None = Field(default=None, ge=1, le=6)
 
 
 class AdminSchoolCreateRequest(BaseModel):

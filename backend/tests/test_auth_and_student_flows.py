@@ -1,4 +1,6 @@
 from app.core.security import create_access_token
+from app.models.questions import GameplayQuestion
+from app.models.school import School
 from app.models.user import User
 
 
@@ -58,6 +60,45 @@ def test_student_progress_returns_default_values(client):
     assert body["xp_to_next_level"] == 15
     assert body["xp_progress_percentage"] == 0
     assert body["problems_solved"] == 0
+    assert body["starter_monster"] is None
+    assert body["equipped_monster"] is None
+    assert body["starter_selected"] is False
+    assert body["grade_level"] is None
+
+
+def test_student_can_select_starter_once(client):
+    _register_user(client, "starter@example.com", "password123", "student")
+    token = _login_user(client, "starter@example.com", "password123")
+    headers = {"Authorization": f"Bearer {token}"}
+
+    state_before = client.get("/api/v1/student/character", headers=headers)
+    assert state_before.status_code == 200, state_before.text
+    assert state_before.json()["starter_selected"] is False
+
+    selected = client.post(
+        "/api/v1/student/character/select",
+        json={"monster": "dog"},
+        headers=headers,
+    )
+    assert selected.status_code == 200, selected.text
+    selected_body = selected.json()
+    assert selected_body["starter_monster"] == "dog"
+    assert selected_body["equipped_monster"] == "dog"
+    assert selected_body["starter_selected"] is True
+
+    progress = client.get("/api/v1/student/progress", headers=headers)
+    assert progress.status_code == 200, progress.text
+    progress_body = progress.json()
+    assert progress_body["starter_monster"] == "dog"
+    assert progress_body["equipped_monster"] == "dog"
+    assert progress_body["starter_selected"] is True
+
+    second_pick = client.post(
+        "/api/v1/student/character/select",
+        json={"monster": "dinosaur"},
+        headers=headers,
+    )
+    assert second_pick.status_code == 409
 
 
 def test_teacher_cannot_access_student_progress(client):
@@ -442,3 +483,147 @@ def test_quiz_completion_awards_xp_once(client, db_session):
     assert second.status_code == 200, second.text
     assert second.json()["xp_awarded"] == 0
     assert second.json()["total_xp"] == 15
+
+
+def test_admin_can_create_student_with_grade_level(client, db_session):
+    school = School(name="Grade School")
+    db_session.add(school)
+    db_session.commit()
+    db_session.refresh(school)
+
+    admin = User(
+        email="super@example.com",
+        password_hash="ignored",
+        role="super_admin",
+        is_admin=True,
+        school_id=None,
+    )
+    db_session.add(admin)
+    db_session.commit()
+    db_session.refresh(admin)
+
+    token = create_access_token(subject=str(admin.id), role="super_admin", is_admin=True)
+    response = client.post(
+        "/api/v1/admin/users",
+        json={
+            "first_name": "Grade",
+            "last_name": "Student",
+            "role": "student",
+            "password": "password123",
+            "school_id": school.id,
+            "grade_level": 1,
+        },
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200, response.text
+    assert response.json()["grade_level"] == 1
+
+
+def test_gameplay_blocks_students_without_assigned_grade(client):
+    _register_user(client, "nograde@example.com", "password123", "student")
+    token = _login_user(client, "nograde@example.com", "password123")
+
+    response = client.post(
+        "/api/v1/game/questions",
+        json={"subject": "math", "count": 2},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 400, response.text
+    assert response.json()["detail"] == "Student grade not assigned"
+
+
+def test_gameplay_returns_questions_for_student_grade_and_subject(client, db_session):
+    _register_user(client, "gradeplay@example.com", "password123", "student")
+    student = db_session.query(User).filter(User.email == "gradeplay@example.com").first()
+    assert student is not None
+    student.grade_level = 1
+    db_session.add(student)
+
+    db_session.add_all(
+        [
+            GameplayQuestion(
+                grade=1,
+                subject="math",
+                difficulty="easy",
+                prompt="What is 2 + 2?",
+                answer_a="1",
+                answer_b="4",
+                answer_c="5",
+                answer_d="12",
+                correct_index=1,
+                active=True,
+            ),
+            GameplayQuestion(
+                grade=2,
+                subject="math",
+                difficulty="easy",
+                prompt="What is 9 + 1?",
+                answer_a="8",
+                answer_b="9",
+                answer_c="10",
+                answer_d="11",
+                correct_index=2,
+                active=True,
+            ),
+            GameplayQuestion(
+                grade=1,
+                subject="english",
+                difficulty="easy",
+                prompt="Which word is a noun?",
+                answer_a="run",
+                answer_b="happy",
+                answer_c="cat",
+                answer_d="quickly",
+                correct_index=2,
+                active=True,
+            ),
+        ]
+    )
+    db_session.commit()
+
+    token = _login_user(client, "gradeplay@example.com", "password123")
+    response = client.post(
+        "/api/v1/game/questions",
+        json={"subject": "math", "count": 3},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["grade_level"] == 1
+    assert body["subject"] == "math"
+    assert len(body["questions"]) == 1
+    assert body["questions"][0]["prompt"] == "What is 2 + 2?"
+    assert "correct_index" not in body["questions"][0]
+
+
+def test_gameplay_submit_checks_db_question_for_student_grade(client, db_session):
+    _register_user(client, "gradeanswer@example.com", "password123", "student")
+    student = db_session.query(User).filter(User.email == "gradeanswer@example.com").first()
+    assert student is not None
+    student.grade_level = 1
+    db_session.add(student)
+
+    question = GameplayQuestion(
+        grade=1,
+        subject="math",
+        difficulty="easy",
+        prompt="What is 3 + 1?",
+        answer_a="3",
+        answer_b="4",
+        answer_c="5",
+        answer_d="6",
+        correct_index=1,
+        active=True,
+    )
+    db_session.add(question)
+    db_session.commit()
+    db_session.refresh(question)
+
+    token = _login_user(client, "gradeanswer@example.com", "password123")
+    response = client.post(
+        "/api/v1/game/submit",
+        json={"question_id": question.id, "selected_index": 1},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200, response.text
+    assert response.json()["correct"] is True

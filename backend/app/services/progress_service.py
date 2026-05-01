@@ -14,6 +14,7 @@ QUIZ_COMPLETION_XP = 15
 @dataclass
 class XPUpdateResult:
     student_id: int
+    student_grade_level: int | None
     total_xp: int
     currency_balance: int
     current_level: int
@@ -44,6 +45,7 @@ def build_progress_snapshot(db: Session, student_id: int) -> XPUpdateResult:
     progress = get_or_create_progress(db, student_id)
     return XPUpdateResult(
         student_id=student.id,
+        student_grade_level=student.grade_level,
         total_xp=max(0, student.total_xp),
         currency_balance=max(0, student.currency_balance),
         current_level=student.current_level,
@@ -86,6 +88,7 @@ def add_xp(
 
     return XPUpdateResult(
         student_id=student.id,
+        student_grade_level=student.grade_level,
         total_xp=student.total_xp,
         currency_balance=student.currency_balance,
         current_level=student.current_level,

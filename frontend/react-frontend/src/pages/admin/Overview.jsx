@@ -16,6 +16,7 @@ export default function AdminOverview() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [role, setRole] = useState("teacher");
+  const [gradeLevel, setGradeLevel] = useState("");
   const [password, setPassword] = useState("");
   const [lastPassword, setLastPassword] = useState("");
   const [result, setResult] = useState(null);
@@ -28,6 +29,9 @@ export default function AdminOverview() {
   const [listError, setListError] = useState("");
   const [listLoading, setListLoading] = useState(false);
   const [deleteLoadingId, setDeleteLoadingId] = useState(null);
+  const [editingUser, setEditingUser] = useState(null);
+  const [editGradeLevel, setEditGradeLevel] = useState("");
+  const [updateLoadingId, setUpdateLoadingId] = useState(null);
 
   useEffect(() => {
     if (!user?.school_id && !isSuperAdmin) {
@@ -118,6 +122,9 @@ export default function AdminOverview() {
 
     setLoading(true);
     try {
+      if (role === "student" && !gradeLevel) {
+        throw new Error("Select a grade for student accounts.");
+      }
       const data = await apiFetch("/admin/users", {
         method: "POST",
         token,
@@ -126,6 +133,7 @@ export default function AdminOverview() {
           last_name: lastName,
           role,
           password,
+          grade_level: role === "student" ? Number(gradeLevel) : null,
           school_id: selectedSchoolId ? Number(selectedSchoolId) : null,
         }),
       });
@@ -135,6 +143,7 @@ export default function AdminOverview() {
       setFirstName("");
       setLastName("");
       setPassword("");
+      setGradeLevel("");
       if (!isSuperAdmin) {
         setRole("teacher");
       }
@@ -158,6 +167,47 @@ export default function AdminOverview() {
       setListError(err.message || "Failed to delete user.");
     } finally {
       setDeleteLoadingId(null);
+    }
+  }
+
+  function openEditUser(userToEdit) {
+    setEditingUser(userToEdit);
+    setEditGradeLevel(userToEdit?.grade_level ? String(userToEdit.grade_level) : "");
+    setListError("");
+  }
+
+  function closeEditUser() {
+    setEditingUser(null);
+    setEditGradeLevel("");
+  }
+
+  async function handleUpdateUser() {
+    if (!editingUser) return;
+    if (editingUser.role !== "student") {
+      setListError("Only students can have grades updated.");
+      return;
+    }
+    if (!editGradeLevel) {
+      setListError("Select a grade before updating.");
+      return;
+    }
+
+    setListError("");
+    setUpdateLoadingId(editingUser.id);
+    try {
+      await apiFetch(`/admin/users/${editingUser.id}`, {
+        method: "PATCH",
+        token,
+        body: JSON.stringify({
+          grade_level: Number(editGradeLevel),
+        }),
+      });
+      closeEditUser();
+      await loadUsers();
+    } catch (err) {
+      setListError(err.message || "Failed to update user.");
+    } finally {
+      setUpdateLoadingId(null);
     }
   }
 
@@ -291,6 +341,11 @@ export default function AdminOverview() {
               <div className="mt-1">
                 School: <span className="font-semibold">{result.school_name || "None"}</span>
               </div>
+              {result.role === "student" ? (
+                <div className="mt-1">
+                  Grade: <span className="font-semibold">{result.grade_level ?? "None"}</span>
+                </div>
+              ) : null}
               <div className="mt-2 text-xs">
                 Password set to: <span className="font-semibold">{lastPassword}</span>
               </div>
@@ -335,6 +390,22 @@ export default function AdminOverview() {
                 </option>
               ))}
             </select>
+
+            {role === "student" ? (
+              <select
+                value={gradeLevel}
+                onChange={(e) => setGradeLevel(e.target.value)}
+                required
+                className="w-full p-3 border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              >
+                <option value="">Select grade</option>
+                {[1, 2, 3, 4, 5, 6].map((grade) => (
+                  <option key={grade} value={grade}>
+                    Grade {grade}
+                  </option>
+                ))}
+              </select>
+            ) : null}
 
             <input
               type="password"
@@ -403,9 +474,10 @@ export default function AdminOverview() {
         ) : null}
 
         <div className="rounded-2xl border overflow-hidden">
-          <div className="grid grid-cols-6 bg-blue-50 text-blue-900 text-sm font-semibold px-4 py-3 gap-3">
+          <div className="grid grid-cols-7 bg-blue-50 text-blue-900 text-sm font-semibold px-4 py-3 gap-3">
             <div>Email</div>
             <div>Role</div>
+            <div>Grade</div>
             <div>School</div>
             <div>Admin</div>
             <div>Password Reset</div>
@@ -416,13 +488,24 @@ export default function AdminOverview() {
               <div className="px-4 py-4 text-sm text-gray-600">No users found.</div>
             ) : (
               users.map((listedUser) => (
-                <div key={listedUser.id} className="grid grid-cols-6 px-4 py-3 text-sm gap-3 items-center">
+                <div key={listedUser.id} className="grid grid-cols-7 px-4 py-3 text-sm gap-3 items-center">
                   <div className="truncate">{listedUser.email}</div>
                   <div className="capitalize">{listedUser.role}</div>
+                  <div>{listedUser.role === "student" ? listedUser.grade_level ?? "-" : "-"}</div>
                   <div className="truncate">{listedUser.school_name || "None"}</div>
                   <div>{listedUser.is_admin ? "Yes" : "No"}</div>
                   <div>{listedUser.must_change_password ? "Yes" : "No"}</div>
-                  <div>
+                  <div className="flex flex-wrap gap-2">
+                    {listedUser.role === "student" ? (
+                      <button
+                        type="button"
+                        onClick={() => openEditUser(listedUser)}
+                        disabled={updateLoadingId === listedUser.id}
+                        className="rounded-lg px-3 py-2 text-xs font-semibold border border-blue-300 text-blue-700 hover:bg-blue-600 hover:text-white transition disabled:opacity-60"
+                      >
+                        Update
+                      </button>
+                    ) : null}
                     <button
                       type="button"
                       onClick={() => handleDeleteUser(listedUser.id)}
@@ -438,6 +521,48 @@ export default function AdminOverview() {
           </div>
         </div>
       </div>
+
+      {editingUser ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-md rounded-2xl border bg-white p-6 shadow-xl flex flex-col gap-4">
+            <div>
+              <h3 className="text-xl font-bold">Update Student Grade</h3>
+              <p className="text-sm text-gray-600">{editingUser.email}</p>
+            </div>
+
+            <select
+              value={editGradeLevel}
+              onChange={(e) => setEditGradeLevel(e.target.value)}
+              className="w-full p-3 border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            >
+              <option value="">Select grade</option>
+              {[1, 2, 3, 4, 5, 6].map((grade) => (
+                <option key={grade} value={grade}>
+                  Grade {grade}
+                </option>
+              ))}
+            </select>
+
+            <div className="flex gap-3 justify-end">
+              <button
+                type="button"
+                onClick={closeEditUser}
+                className="rounded-xl px-4 py-3 text-sm font-semibold border border-gray-300 hover:bg-gray-100 transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleUpdateUser}
+                disabled={updateLoadingId === editingUser.id}
+                className="rounded-xl px-4 py-3 text-sm font-semibold border border-blue-300 hover:bg-blue-500 hover:text-white transition disabled:opacity-60"
+              >
+                {updateLoadingId === editingUser.id ? "Updating..." : "Save"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

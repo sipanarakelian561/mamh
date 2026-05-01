@@ -10,6 +10,7 @@ from app.models.classroom import Classroom
 from app.models.classroom_membership import ClassroomMembership
 from app.models.quiz import Quiz, QuizQuestion
 from app.models.user import User
+from app.schemas.character import CharacterSelectRequest, CharacterStateOut
 from app.schemas.classroom import ClassroomJoinRequest
 from app.schemas.inventory import ItemAdd, ItemEquip, ItemPurchase, ItemPurchaseOut, ShopItemOut
 from app.schemas.progress import ProgressOut
@@ -18,6 +19,7 @@ from app.services.inventory_service import get_shop_catalog, list_items, purchas
 from app.services.progress_service import QUIZ_COMPLETION_XP, add_xp, build_progress_snapshot
 
 router = APIRouter(prefix="/student", tags=["student"])
+_STARTER_CHOICES = ["monster", "dog", "dinosaur"]
 
 
 def _student_memberships(db: Session, student_id: int) -> list[ClassroomMembership]:
@@ -43,12 +45,55 @@ def student_progress(
         student_id=snapshot.student_id,
         xp=snapshot.total_xp,
         level=snapshot.current_level,
+        grade_level=snapshot.student_grade_level,
         total_xp=snapshot.total_xp,
         currency_balance=snapshot.currency_balance,
         current_level=snapshot.current_level,
         xp_to_next_level=snapshot.xp_to_next_level,
         xp_progress_percentage=snapshot.xp_progress_percentage,
         problems_solved=snapshot.problems_solved,
+        starter_monster=student.starter_monster,
+        equipped_monster=student.equipped_monster,
+        starter_selected=student.starter_monster is not None,
+    )
+
+
+@router.get("/character", response_model=CharacterStateOut)
+def student_character_state(
+    student: User = Depends(require_student),
+):
+    return CharacterStateOut(
+        starter_monster=student.starter_monster,
+        equipped_monster=student.equipped_monster,
+        starter_selected=student.starter_monster is not None,
+        available_starters=_STARTER_CHOICES,
+    )
+
+
+@router.post("/character/select", response_model=CharacterStateOut)
+def student_select_character(
+    payload: CharacterSelectRequest,
+    db: Session = Depends(get_db),
+    student: User = Depends(require_student),
+):
+    if student.starter_monster is not None:
+        raise HTTPException(status_code=409, detail="Starter monster already selected")
+
+    selected_monster = payload.monster.lower()
+    if selected_monster not in _STARTER_CHOICES:
+        raise HTTPException(status_code=400, detail="Invalid starter monster")
+
+    student.starter_monster = selected_monster
+    student.equipped_monster = selected_monster
+    db.add(student)
+    db.commit()
+    db.refresh(student)
+
+    return CharacterStateOut(
+        starter_monster=student.starter_monster,
+        equipped_monster=student.equipped_monster,
+        starter_selected=True,
+        available_starters=_STARTER_CHOICES,
     )
 
 

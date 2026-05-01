@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/UseAuth";
+import homeBackground from "../assets/mamh_homescreen.jpeg";
 
 const DEV_MODE = false; // Set to false in production
 
@@ -47,26 +48,34 @@ export default function LogIn() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-white relative">
+    <div className="relative min-h-screen overflow-hidden">
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `url(${homeBackground})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      />
+
+      <div className="absolute inset-0 bg-black/35" />
+
+      <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
       <button
-        className="absolute top-4 left-4 px-4 py-2 rounded-xl border border-blue-300 text-gray-900 hover:bg-blue-500 hover:text-white transition"
+        className="absolute top-4 left-4 px-4 py-2 rounded-xl border border-white text-white bg-white/10 backdrop-blur-md hover:bg-blue-500 hover:text-white transition"
         onClick={() => navigate("/")}
       >
         Return
       </button>
 
-      <button
-        className="absolute top-4 right-4 px-4 py-2 rounded-xl border border-blue-300 text-gray-900 hover:bg-blue-500 hover:text-white transition"
-        onClick={() => navigate("/register")}
-      >
-        Create Account
-      </button>
+      
 
       <form
         onSubmit={HandleSubmit}
-        className="flex flex-col gap-4 items-center w-full max-w-md"
+        className="flex flex-col gap-4 items-center w-full max-w-md rounded-2xl border border-white/30 bg-white/10 backdrop-blur-md p-8"
       >
-        <h1 className="text-4xl font-extrabold pb-2 text-gray-900">Log in</h1>
+        <h1 className="text-4xl font-extrabold pb-2 text-white">Log in</h1>
 
         {DEV_MODE && (
           <div className="w-full p-4 rounded-xl border border-blue-200 bg-blue-50">
@@ -104,7 +113,7 @@ export default function LogIn() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="w-full p-3 border border-blue-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 border border-white rounded-xl text-white bg-white/10 placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
         <input
@@ -113,12 +122,12 @@ export default function LogIn() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          className="w-full p-3 border border-blue-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 border border-white rounded-xl text-white bg-white/10 placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
         <button
           type="submit"
-          className="w-full rounded-xl px-8 py-4 text-lg font-semibold border border-blue-300 text-gray-900 hover:bg-blue-500 hover:text-white transition"
+          className="w-full rounded-xl px-8 py-4 text-lg font-semibold border border-white text-white bg-white/10 backdrop-blur-md hover:bg-blue-500 hover:text-white transition"
         >
           Submit
         </button>
@@ -127,13 +136,14 @@ export default function LogIn() {
           <div className="flex gap-2 items-center">
             <button
               type="button"
-              className="text-gray-900 hover:text-blue-600 hover:underline"
+              className="text-white hover:text-blue-200 hover:underline"
             >
               Forgot password
             </button>
           </div>
         )}
       </form>
+      </div>
     </div>
   );
 }

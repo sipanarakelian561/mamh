@@ -14,8 +14,11 @@ class User(Base):
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
     must_change_password: Mapped[bool] = mapped_column(Boolean, default=False)
     school_id: Mapped[int | None] = mapped_column(ForeignKey("schools.id"), index=True, nullable=True)
+    grade_level: Mapped[int | None] = mapped_column(Integer, index=True, nullable=True)
     total_xp: Mapped[int] = mapped_column(Integer, default=0)
     currency_balance: Mapped[int] = mapped_column(Integer, default=0)
+    starter_monster: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    equipped_monster: Mapped[str | None] = mapped_column(String(50), nullable=True)
 
     @staticmethod
     def xp_required_for_level(level: int) -> int:

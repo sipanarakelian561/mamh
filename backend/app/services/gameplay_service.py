@@ -1,26 +1,28 @@
-import random
-import uuid
+from sqlalchemy import func
+from sqlalchemy.orm import Session
+
+from app.models.questions import GameplayQuestion
 
 
-def generate_addition(difficulty: int) -> tuple[str, int]:
-    if difficulty == 1:
-        a, b = random.randint(0, 10), random.randint(0, 10)
-    elif difficulty == 2:
-        a, b = random.randint(5, 50), random.randint(5, 50)
-    else:
-        a, b = random.randint(20, 200), random.randint(20, 200)
-    prompt = f"{a} + {b} = ?"
-    return prompt, a + b
+def get_random_questions(
+    db: Session,
+    *,
+    grade: int,
+    subject: str,
+    count: int,
+) -> list[GameplayQuestion]:
+    return (
+        db.query(GameplayQuestion)
+        .filter(
+            GameplayQuestion.grade == grade,
+            GameplayQuestion.subject == subject.lower(),
+            GameplayQuestion.active.is_(True),
+        )
+        .order_by(func.random())
+        .limit(max(1, min(count, 20)))
+        .all()
+    )
 
 
-def generate_problem(grade: int, difficulty: int) -> dict:
-    prompt, answer = generate_addition(difficulty)
-    return {
-        "problem_id": str(uuid.uuid4()),
-        "prompt": prompt,
-        "answer": answer,
-    }
-
-
-def check_answer(correct_answer: int, submitted_answer: int) -> bool:
-    return int(submitted_answer) == int(correct_answer)
+def check_answer(correct_index: int, selected_index: int) -> bool:
+    return int(selected_index) == int(correct_index)
