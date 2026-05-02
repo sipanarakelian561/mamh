@@ -1,0 +1,92 @@
+[
+  {
+    "grade": 5,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 4 x 121?",
+    "answers": ["444", "484", "414", "464"],
+    "correct_index": 1,
+    "active": true
+  },
+  {
+    "grade": 5,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 161 x 2?",
+    "answers": ["171", "262", "222", "322"],
+    "correct_index": 3,
+    "active": true
+  },
+  {
+    "grade": 5,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 3.3 x 3?",
+    "answers": ["9.6", "9.9", "3.7", "6.8"],
+    "correct_index": 1,
+    "active": true
+  },
+  {
+    "grade": 5,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 7.7 x 0?",
+    "answers": ["0", "7.7", "0.7", "7.0"],
+    "correct_index": 0,
+    "active": true
+  },
+  {
+    "grade": 5,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 222 + 152?",
+    "answers": ["362", "374", "384", "369"],
+    "correct_index": 1,
+    "active": true
+  },
+  {
+    "grade": 5,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 188 + 114?",
+    "answers": ["302", "202", "308", "222"],
+    "correct_index": 0,
+    "active": true
+  },
+  {
+    "grade": 5,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 100 divided by 5?",
+    "answers": ["40", "50", "20", "10"],
+    "correct_index": 2,
+    "active": true
+  },
+  {
+    "grade": 5,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 401 + 113?",
+    "answers": ["504", "514", "614", "604"],
+    "correct_index": 1,
+    "active": true
+  },
+  {
+    "grade": 5,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 1.2 x 2?",
+    "answers": ["2.2", "2.4", "6.0", "2.0"],
+    "correct_index": 1,
+    "active": true
+  },
+  {
+    "grade": 5,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 616 - 66?",
+    "answers": ["606", "510", "550", "512"],
+    "correct_index": 2,
+    "active": true
+  }
+]

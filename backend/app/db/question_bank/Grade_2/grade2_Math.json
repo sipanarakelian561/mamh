@@ -1,0 +1,92 @@
+[
+  {
+    "grade": 2,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 41 + 10?",
+    "answers": ["50", "59", "51", "49"],
+    "correct_index": 2,
+    "active": true
+  },
+  {
+    "grade": 2,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 61 + 21?",
+    "answers": ["80", "82", "72", "81"],
+    "correct_index": 1,
+    "active": true
+  },
+  {
+    "grade": 2,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 33 + 13?",
+    "answers": ["49", "46", "39", "43"],
+    "correct_index": 1,
+    "active": true
+  },
+  {
+    "grade": 2,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 17 + 10?",
+    "answers": ["20", "16", "27", "18"],
+    "correct_index": 2,
+    "active": true
+  },
+  {
+    "grade": 2,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 27 + 5?",
+    "answers": ["36", "32", "28", "29"],
+    "correct_index": 1,
+    "active": true
+  },
+  {
+    "grade": 2,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 80 - 40?",
+    "answers": ["20", "30", "40", "54"],
+    "correct_index": 2,
+    "active": true
+  },
+  {
+    "grade": 2,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 10 - 5?",
+    "answers": ["4", "5", "6", "7"],
+    "correct_index": 1,
+    "active": true
+  },
+  {
+    "grade": 2,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 41 - 3?",
+    "answers": ["14", "38", "32", "39"],
+    "correct_index": 1,
+    "active": true
+  },
+  {
+    "grade": 2,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 19 - 12?",
+    "answers": ["16", "7", "18", "9"],
+    "correct_index": 1,
+    "active": true
+  },
+  {
+    "grade": 2,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 61 - 6?",
+    "answers": ["55", "60", "56", "52"],
+    "correct_index": 0,
+    "active": true
+  }
+]

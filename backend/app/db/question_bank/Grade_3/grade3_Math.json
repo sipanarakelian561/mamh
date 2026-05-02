@@ -1,0 +1,92 @@
+[
+  {
+    "grade": 3,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 4 x 1?",
+    "answers": ["3", "4", "5", "6"],
+    "correct_index": 1,
+    "active": true
+  },
+  {
+    "grade": 3,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 6 x 2?",
+    "answers": ["17", "18", "9", "12"],
+    "correct_index": 3,
+    "active": true
+  },
+  {
+    "grade": 3,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 3 x 3?",
+    "answers": ["6", "9", "7", "8"],
+    "correct_index": 1,
+    "active": true
+  },
+  {
+    "grade": 3,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 7 x 0?",
+    "answers": ["0", "6", "7", "70"],
+    "correct_index": 0,
+    "active": true
+  },
+  {
+    "grade": 3,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 222 + 52?",
+    "answers": ["262", "274", "284", "269"],
+    "correct_index": 1,
+    "active": true
+  },
+  {
+    "grade": 3,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 88 + 14?",
+    "answers": ["102", "103", "94", "95"],
+    "correct_index": 0,
+    "active": true
+  },
+  {
+    "grade": 3,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 10 divided by 5?",
+    "answers": ["4", "5", "2", "0"],
+    "correct_index": 2,
+    "active": true
+  },
+  {
+    "grade": 3,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 401 + 13?",
+    "answers": ["504", "414", "412", "513"],
+    "correct_index": 1,
+    "active": true
+  },
+  {
+    "grade": 3,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 8 divided by 2?",
+    "answers": ["6", "4", "8", "2"],
+    "correct_index": 1,
+    "active": true
+  },
+  {
+    "grade": 3,
+    "subject": "math",
+    "difficulty": "easy",
+    "prompt": "What is 616 - 66?",
+    "answers": ["606", "510", "550", "512"],
+    "correct_index": 2,
+    "active": true
+  }
+]
