@@ -1,1 +1,96 @@
-[]
+[{ 
+    "grade": 1, 
+    "subject": "English", 
+    "difficulty": "easy", 
+    "prompt": "Which word is a noun?", 
+    "answers": ["run", "dog", "jump", "happy"], 
+    "correct_index": 1, "active": true },
+
+  { 
+    "grade": 1, 
+    "subject": "English", 
+    "difficulty": "easy", 
+    "prompt": "What is the capital letter in 'My cat'?", 
+    "answers": ["m", "c", "t", "y"], 
+    "correct_index": 0, 
+    "active": true 
+},
+
+  { 
+    "grade": 1, 
+    "subject": "English", 
+    "difficulty": "easy", 
+    "prompt": "Which is an action word?", 
+    "answers": ["cat", "run", "red", "big"], 
+    "correct_index": 1, 
+    "active": true 
+},
+
+  { 
+    "grade": 1, 
+    "subject": "English", 
+    "difficulty": "easy", 
+    "prompt": "Which word is an animal?", 
+    "answers": ["desk", "bird", "fast", "blue"], 
+    "correct_index": 1, 
+    "active": true 
+},
+
+  { 
+    "grade": 1, 
+    "subject": "English", 
+    "difficulty": "easy", 
+    "prompt": "What ends a sentence?", 
+    "answers": ["comma", "period", "plus", "and"], 
+    "correct_index": 1, 
+    "active": true 
+},
+
+  { 
+    "grade": 1,
+    "subject": "English", 
+    "difficulty": "easy", 
+    "prompt": "Which is a place?", 
+    "answers": ["school", "eat", "sad", "pen"], 
+    "correct_index": 0, 
+    "active": true 
+},
+
+  { 
+    "grade": 1, 
+    "subject": "English", 
+    "difficulty": "easy", 
+    "prompt": "Which word rhymes with 'cat'?", 
+    "answers": ["dog", "bat", "sun", "go"], 
+    "correct_index": 1, 
+    "active": true 
+},
+
+  { "grade": 1, 
+    "subject": "English", 
+    "difficulty": "easy", 
+    "prompt": "What word means opposite of 'big'?", 
+    "answers": ["tall", "small", "long", "fast"], 
+    "correct_index": 1, 
+    "active": true 
+},
+
+  { 
+    "grade": 1, 
+    "subject": "English", 
+    "difficulty": "easy", 
+    "prompt": "Choose the word with two syllables.", 
+    "answers": ["cat", "dog", "apple", "run"], 
+    "correct_index": 2, 
+    "active": true 
+},
+
+  { "grade": 1, 
+    "subject": "English", 
+    "difficulty": "easy", 
+    "prompt": "Which is a color?", 
+    "answers": ["red", "run", "sit", "cat"], 
+    "correct_index": 0, 
+    "active": true 
+    }
+]

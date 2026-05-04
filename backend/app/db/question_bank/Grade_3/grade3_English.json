@@ -1,1 +1,19 @@
-[]
+[
+    { "grade": 3, "subject": "English", "difficulty": "easy", "prompt": "What is the adjective in 'The bright star'?", "answers": ["The", "bright", "star", "none"], "correct_index": 1, "active": true },
+  { "grade": 3, "subject": "English", "difficulty": "easy", "prompt": "Which is a possessive noun?", "answers": ["cats", "cat's", "cat", "cates"], "correct_index": 1, "active": true },
+  { "grade": 3, "subject": "English", "difficulty": "easy", "prompt": "What is an adverb?", "answers": ["run", "quickly", "big", "table"], "correct_index": 1, "active": true },
+  { "grade": 3, "subject": "English", "difficulty": "easy", "prompt": "Which sentence is interrogative?", "answers": ["Go home.", "I am happy.", "Where are you?", "Stop!"], "correct_index": 2, "active": true },
+  { "grade": 3, "subject": "English", "difficulty": "easy", "prompt": "Identify the subject: 'The dog runs.'", "answers": ["The dog", "runs", "The", "none"], "correct_index": 0, "active": true },
+  { "grade": 3, "subject": "English", "difficulty": "easy", "prompt": "Which is an antonym for 'sad'?", "answers": ["angry", "joyful", "bad", "tired"], "correct_index": 1, "active": true },
+  { "grade": 3, "subject": "English", "difficulty": "easy", "prompt": "Which word is plural?", "answers": ["child", "men", "man", "foot"], "correct_index": 1, "active": true },
+  { "grade": 3, "subject": "English", "difficulty": "easy", "prompt": "What is a prefix in 'reappear'?", "answers": ["re", "appear", "pear", "none"], "correct_index": 0, "active": true },
+  { "grade": 3, "subject": "English", "difficulty": "easy", "prompt": "Which is a linking verb?", "answers": ["is", "run", "jump", "eat"], "correct_index": 0, "active": true },
+  { "grade": 3, "subject": "English", "difficulty": "easy", "prompt": "What punctuation marks a quote?", "answers": ["period", "comma", "quotation marks", "dash"], "correct_index": 2, "active": true },
+  { "grade": 3, "subject": "English", "difficulty": "easy", "prompt": "Which is a synonym for 'happy'?", "answers": ["sad", "angry", "joyful", "tired"], "correct_index": 2, "active": true },
+  { "grade": 3, "subject": "English", "difficulty": "easy", "prompt": "Identify the verb: 'She sings.'", "answers": ["She", "sings", "none", "both"], "correct_index": 1, "active": true },
+  { "grade": 3, "subject": "English", "difficulty": "easy", "prompt": "'The cat is on the roof.' What is the preposition?", "answers": ["The", "cat", "on", "roof"], "correct_index": 2, "active": true },
+  { "grade": 3, "subject": "English", "difficulty": "easy", "prompt": "'He is taller than me.' What does 'taller' mean?", 
+    "answers": ["shorter", "more tall", "tallest", "'taller' is not a word"],
+    "correct_index": 1, "active": true 
+    }
+]

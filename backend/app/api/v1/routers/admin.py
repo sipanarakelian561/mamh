@@ -4,7 +4,7 @@ import re
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.api.v1.deps.auth import require_admin, require_super_admin
+from app.api.v1.deps.auth import require_admin, require_school_admin, require_super_admin
 from app.core.security import hash_password
 from app.db.session import get_db
 from app.models.assignment import Assignment
@@ -18,6 +18,7 @@ from app.models.quiz_completion import QuizCompletion
 from app.models.school import School
 from app.models.user import User
 from app.schemas.admin import (
+    AdminChangeStudentPasswordRequest,
     AdminCreateUserRequest,
     AdminCreateUserResponse,
     AdminSchoolCreateRequest,
@@ -247,6 +248,26 @@ def delete_user(
     db.delete(user)
     db.commit()
     return {"status": "ok"}
+
+
+@router.post("/students/{student_id}/password")
+def change_student_password(
+    student_id: int,
+    payload: AdminChangeStudentPasswordRequest,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_school_admin),
+):
+    student = db.get(User, student_id)
+    if not student or student.role != "student":
+        raise HTTPException(status_code=404, detail="Student not found")
+    if admin.school_id is None or student.school_id != admin.school_id:
+        raise HTTPException(status_code=403, detail="Cannot manage a student from another school")
+
+    student.password_hash = hash_password(payload.new_password)
+    student.must_change_password = True
+    db.add(student)
+    db.commit()
+    return {"status": "ok", "student_id": student.id}
 
 
 @router.get("/schools", response_model=list[AdminSchoolOut])

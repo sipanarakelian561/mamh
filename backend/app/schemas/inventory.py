@@ -21,7 +21,12 @@ class ShopItemOut(BaseModel):
     name: str
     slot: str
     cost: int
+    category: str
+    base_character: str | None = None
+    image_key: str | None = None
     owned: bool = False
+    can_purchase: bool = False
+    lock_reason: str | None = None
 
 
 class ItemPurchaseOut(BaseModel):

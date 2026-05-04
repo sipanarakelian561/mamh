@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "../../auth/UseAuth";
 import { getApiBaseUrl } from "../../api/config";
+import homeBackground from "../../assets/mamh_homescreen.jpeg";
 
 export default function StudentPlay() {
   const { token } = useAuth();
@@ -32,7 +33,7 @@ export default function StudentPlay() {
   }
 
   return (
-    <div className="rounded-2xl border p-6 bg-white">
+    <div className="rounded-2xl border p-6 bg-sky-100">
       <h2 className="text-2xl font-bold">Play Game</h2>
       <p className="mt-2 text-gray-600">Press space to jump.</p>
 
@@ -48,7 +49,7 @@ export default function StudentPlay() {
       ) : (
         <div
           ref={gameShellRef}
-          className="game-shell mt-4 w-full rounded-2xl overflow-hidden border"
+          className="game-shell relative mt-4 w-full rounded-2xl overflow-hidden border"
         >
           <div className="p-3 border-b flex items-center justify-between">
             <div className="text-sm text-gray-600">Official Game</div>
@@ -60,6 +61,22 @@ export default function StudentPlay() {
               {ready ? "Full Screen" : "Loading..."}
             </button>
           </div>
+          {!ready ? (
+            <div
+              className="absolute inset-x-0 bottom-0 top-[57px] z-10 flex items-center justify-center"
+              style={{
+                backgroundImage: `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url(${homeBackground})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+              }}
+            >
+              <div className="rounded-2xl border border-white/30 bg-white/10 px-6 py-4 text-center text-white backdrop-blur-md">
+                <div className="text-2xl font-extrabold">MONSTER ATE MY HOMEWORK</div>
+                <div className="mt-2 text-sm font-medium text-white/90">Loading game...</div>
+              </div>
+            </div>
+          ) : null}
           <iframe
             src={iframeSrc}
             title="Official Game"

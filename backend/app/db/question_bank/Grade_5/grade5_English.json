@@ -1,1 +1,10 @@
-[]
+[{ "grade": 5, "subject": "English", "difficulty": "easy", "prompt": "Which is a synonym for 'joyful'?", "answers": ["sad", "delighted", "angry", "fast"], "correct_index": 1, "active": true },
+  { "grade": 5, "subject": "English", "difficulty": "easy", "prompt": "What does a bibliography list?", "answers": ["sources", "definitions", "authors", "names"], "correct_index": 0, "active": true },
+  { "grade": 5, "subject": "English", "difficulty": "easy", "prompt": "Which is a subordinating conjunction?", "answers": ["although", "and", "but", "so"], "correct_index": 0, "active": true },
+  { "grade": 5, "subject": "English", "difficulty": "easy", "prompt": "What is an idiom?", "answers": ["a literal phrase", "a figurative expression", "a noun", "a verb"], "correct_index": 1, "active": true },
+  { "grade": 5, "subject": "English", "difficulty": "easy", "prompt": "Identify the object: 'He read the book.'", "answers": ["He", "read", "book", "none"], "correct_index": 2, "active": true },
+  { "grade": 5, "subject": "English", "difficulty": "easy", "prompt": "Which is a superlative adjective?", "answers": ["tall", "taller", "tallest", "none"], "correct_index": 2, "active": true },
+  { "grade": 5, "subject": "English", "difficulty": "easy", "prompt": "What is a memoir?", "answers": ["fiction", "autobiography", "dictionary", "map"], "correct_index": 1, "active": true },
+  { "grade": 5, "subject": "English", "difficulty": "easy", "prompt": "Which is a helping verb?", "answers": ["have", "cat", "run", "blue"], "correct_index": 0, "active": true },
+  { "grade": 5, "subject": "English", "difficulty": "easy", "prompt": "What does 'nonfiction' mean?", "answers": ["true", "false", "made up", "funny"], "correct_index": 0, "active": true },
+  { "grade": 5, "subject": "English", "difficulty": "easy", "prompt": "Which word is a homograph?", "answers": ["read", "apple", "fast", "big"], "correct_index": 0, "active": true }]

@@ -46,6 +46,7 @@ def get_questions(
         subject=payload.subject,
         count=payload.count,
         teacher_ids=_teacher_ids_for_student_subject(db, student.id, student.grade_level, payload.subject),
+        exclude_question_ids=payload.exclude_question_ids,
     )
     if not questions:
         raise HTTPException(status_code=404, detail="No active questions found for this grade and subject")

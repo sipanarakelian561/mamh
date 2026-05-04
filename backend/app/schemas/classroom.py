@@ -3,10 +3,16 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-Subject = Literal["math", "science", "reading", "writing"]
+Subject = Literal["math", "english"]
 
 
 class ClassroomCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=120)
+    grade: int = Field(ge=1, le=12)
+    subject: Subject
+
+
+class ClassroomUpdate(BaseModel):
     name: str = Field(min_length=1, max_length=120)
     grade: int = Field(ge=1, le=12)
     subject: Subject

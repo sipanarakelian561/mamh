@@ -24,10 +24,6 @@ def load_question_bank() -> list[dict]:
 
 
 def seed_gameplay_questions(db: Session) -> None:
-    existing_count = db.query(GameplayQuestion).count()
-    if existing_count > 0:
-        return
-
     raw_questions = load_question_bank()
 
     for q in raw_questions:
@@ -51,6 +47,19 @@ def seed_gameplay_questions(db: Session) -> None:
             continue
 
         answers = q["answers"]
+
+        existing = (
+            db.query(GameplayQuestion)
+            .filter(
+                GameplayQuestion.teacher_id.is_(None),
+                GameplayQuestion.grade == int(q["grade"]),
+                GameplayQuestion.subject == str(q["subject"]).lower(),
+                GameplayQuestion.prompt == str(q["prompt"]),
+            )
+            .first()
+        )
+        if existing:
+            continue
 
         question = GameplayQuestion(
             teacher_id=None,

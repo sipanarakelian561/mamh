@@ -1,1 +1,10 @@
-[]
+[{ "grade": 4, "subject": "English", "difficulty": "easy", "prompt": "Which sentence is punctuated correctly?", "answers": ["I like: red, blue, and green.", "I like red, blue, and green.", "I like red blue and green.", "I like; red, blue and green."], "correct_index": 1, "active": true },
+  { "grade": 4, "subject": "English", "difficulty": "easy", "prompt": "What is the root of 'unhappy'?", "answers": ["un", "happy", "happi", "none"], "correct_index": 1, "active": true },
+  { "grade": 4, "subject": "English", "difficulty": "easy", "prompt": "Which is a relative pronoun?", "answers": ["who", "it", "they", "we"], "correct_index": 0, "active": true },
+  { "grade": 4, "subject": "English", "difficulty": "easy", "prompt": "What is a metaphor?", "answers": ["Comparison using like/as", "Direct comparison", "An action", "A sound"], "correct_index": 1, "active": true },
+  { "grade": 4, "subject": "English", "difficulty": "easy", "prompt": "Which word is a homophone for 'their'?", "answers": ["there", "them", "they", "the"], "correct_index": 0, "active": true },
+  { "grade": 4, "subject": "English", "difficulty": "easy", "prompt": "Identify the preposition: 'The cat is on the mat.'", "answers": ["cat", "on", "mat", "is"], "correct_index": 1, "active": true },
+  { "grade": 4, "subject": "English", "difficulty": "easy", "prompt": "Which is a coordinating conjunction?", "answers": ["and", "because", "so", "if"], "correct_index": 0, "active": true },
+  { "grade": 4, "subject": "English", "difficulty": "easy", "prompt": "What is the suffix in 'quickly'?", "answers": ["quick", "ly", "q", "none"], "correct_index": 1, "active": true },
+  { "grade": 4, "subject": "English", "difficulty": "easy", "prompt": "Which sentence is imperative?", "answers": ["Eat your dinner.", "Is it time?", "I am hungry.", "Wow!"], "correct_index": 0, "active": true },
+  { "grade": 4, "subject": "English", "difficulty": "easy", "prompt": "Which is a comparative adjective?", "answers": ["fast", "faster", "fastest", "none"], "correct_index": 1, "active": true }]

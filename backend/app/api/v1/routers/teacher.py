@@ -15,7 +15,7 @@ from app.models.questions import GameplayQuestion
 from app.models.quiz import Quiz, QuizQuestion
 from app.models.user import User
 from app.schemas.assignment import AssignmentCreate
-from app.schemas.classroom import ClassroomCreate
+from app.schemas.classroom import ClassroomCreate, ClassroomUpdate
 from app.schemas.question_bank import QuestionBankCreate, QuestionBankUpdate
 from app.schemas.quiz import QuizCreate
 from app.services.progress_service import build_progress_snapshot
@@ -285,6 +285,61 @@ def list_classrooms(
     return out
 
 
+@router.patch("/classrooms/{classroom_id}")
+def update_classroom(
+    classroom_id: int,
+    payload: ClassroomUpdate,
+    db: Session = Depends(get_db),
+    teacher: User = Depends(require_teacher),
+):
+    classroom = _get_teacher_classroom(db, teacher.id, classroom_id)
+    classroom.name = payload.name
+    classroom.grade = payload.grade
+    classroom.subject = payload.subject
+    db.commit()
+    db.refresh(classroom)
+    return {
+        "id": classroom.id,
+        "name": classroom.name,
+        "grade": classroom.grade,
+        "subject": classroom.subject,
+        "join_code": classroom.join_code,
+        "created_at": classroom.created_at,
+    }
+
+
+@router.delete("/classrooms/{classroom_id}")
+def delete_classroom(
+    classroom_id: int,
+    db: Session = Depends(get_db),
+    teacher: User = Depends(require_teacher),
+):
+    classroom = _get_teacher_classroom(db, teacher.id, classroom_id)
+
+    assignment_ids = [
+        assignment_id
+        for (assignment_id,) in db.query(Assignment.id).filter(Assignment.classroom_id == classroom.id).all()
+    ]
+    if assignment_ids:
+        db.query(AssignmentCompletion).filter(AssignmentCompletion.assignment_id.in_(assignment_ids)).delete(
+            synchronize_session=False
+        )
+        db.query(Assignment).filter(Assignment.id.in_(assignment_ids)).delete(synchronize_session=False)
+
+    quiz_ids = [quiz_id for (quiz_id,) in db.query(Quiz.id).filter(Quiz.classroom_id == classroom.id).all()]
+    if quiz_ids:
+        db.query(QuizCompletion).filter(QuizCompletion.quiz_id.in_(quiz_ids)).delete(synchronize_session=False)
+        db.query(QuizQuestion).filter(QuizQuestion.quiz_id.in_(quiz_ids)).delete(synchronize_session=False)
+        db.query(Quiz).filter(Quiz.id.in_(quiz_ids)).delete(synchronize_session=False)
+
+    db.query(ClassroomMembership).filter(ClassroomMembership.classroom_id == classroom.id).delete(
+        synchronize_session=False
+    )
+    db.delete(classroom)
+    db.commit()
+    return {"deleted": True, "classroom_id": classroom_id}
+
+
 @router.post("/assignments")
 def create_assignment(
     payload: AssignmentCreate,
@@ -503,6 +558,23 @@ def update_quiz(
         "created_at": quiz.created_at,
         "questions": [_quiz_question_out(q) for q in questions],
     }
+
+
+@router.delete("/quizzes/{quiz_id}")
+def delete_quiz(
+    quiz_id: int,
+    db: Session = Depends(get_db),
+    teacher: User = Depends(require_teacher),
+):
+    quiz = db.query(Quiz).filter(Quiz.id == quiz_id, Quiz.teacher_id == teacher.id).first()
+    if not quiz:
+        raise HTTPException(status_code=404, detail="Quiz not found")
+
+    db.query(QuizCompletion).filter(QuizCompletion.quiz_id == quiz.id).delete(synchronize_session=False)
+    db.query(QuizQuestion).filter(QuizQuestion.quiz_id == quiz.id).delete(synchronize_session=False)
+    db.delete(quiz)
+    db.commit()
+    return {"deleted": True, "id": quiz_id}
 
 
 @router.get("/question-bank")

@@ -23,11 +23,14 @@ export default function AdminLayout() {
   const title = user?.role === "super_admin" ? "Super Admin" : "Admin";
 
   return (
-    <div className="min-h-screen flex bg-white">
+    <div className="min-h-screen flex bg-sky-100">
       <aside className="w-72 p-4 border-r flex flex-col gap-4">
         <div className="text-2xl font-extrabold px-2">{title}</div>
         <BigNav to="/admin/overview" label="Overview" />
         <BigNav to="/admin/password" label="Password" />
+        {user?.role === "admin" ? (
+          <BigNav to="/admin/student-password" label="Change Student Password" />
+        ) : null}
       </aside>
 
       <div className="flex-1 flex flex-col">

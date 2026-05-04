@@ -18,6 +18,7 @@ export default function TeacherQuizzes() {
   const [editingQuizId, setEditingQuizId] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [deleteQuizId, setDeleteQuizId] = useState(null);
 
   const completionStats = useMemo(() => {
     const completionByQuiz = new Map();
@@ -147,6 +148,25 @@ export default function TeacherQuizzes() {
       setError(err.message || "Failed to save quiz.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDeleteQuiz(quizId) {
+    setError("");
+    setDeleteQuizId(quizId);
+    try {
+      await apiFetch(`/teacher/quizzes/${quizId}`, {
+        method: "DELETE",
+        token,
+      });
+      setQuizzes((prev) => prev.filter((quiz) => quiz.id !== quizId));
+      if (editingQuizId === quizId) {
+        resetForm();
+      }
+    } catch (err) {
+      setError(err.message || "Failed to delete quiz.");
+    } finally {
+      setDeleteQuizId(null);
     }
   }
 
@@ -307,13 +327,23 @@ export default function TeacherQuizzes() {
                         </div>
                       ) : null}
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => beginEdit(quiz)}
-                      className="rounded-lg border border-blue-300 px-3 py-2 text-sm font-semibold transition hover:bg-blue-500 hover:text-white"
-                    >
-                      Update
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => beginEdit(quiz)}
+                        className="rounded-lg border border-blue-300 px-3 py-2 text-sm font-semibold transition hover:bg-blue-500 hover:text-white"
+                      >
+                        Update
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteQuiz(quiz.id)}
+                        disabled={deleteQuizId === quiz.id}
+                        className="rounded-lg border border-red-300 px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-60"
+                      >
+                        {deleteQuizId === quiz.id ? "Deleting..." : "Delete"}
+                      </button>
+                    </div>
                   </div>
                 </li>
               );

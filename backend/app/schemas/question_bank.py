@@ -1,9 +1,13 @@
+from typing import Literal
+
 from pydantic import BaseModel, Field
+
+Subject = Literal["math", "english"]
 
 
 class QuestionBankCreate(BaseModel):
     grade: int = Field(ge=1, le=6)
-    subject: str = Field(min_length=1, max_length=50)
+    subject: Subject
     difficulty: str = Field(default="easy", min_length=1, max_length=20)
     prompt: str = Field(min_length=1)
     answers: list[str] = Field(min_length=4, max_length=4)
@@ -13,7 +17,7 @@ class QuestionBankCreate(BaseModel):
 
 class QuestionBankUpdate(BaseModel):
     grade: int | None = Field(default=None, ge=1, le=6)
-    subject: str | None = Field(default=None, min_length=1, max_length=50)
+    subject: Subject | None = None
     difficulty: str | None = Field(default=None, min_length=1, max_length=20)
     prompt: str | None = Field(default=None, min_length=1)
     answers: list[str] | None = Field(default=None, min_length=4, max_length=4)
@@ -25,7 +29,7 @@ class QuestionBankOut(BaseModel):
     id: int
     teacher_id: int | None
     grade: int
-    subject: str
+    subject: Subject
     difficulty: str
     prompt: str
     answers: list[str]

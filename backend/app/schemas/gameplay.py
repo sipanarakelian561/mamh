@@ -1,9 +1,14 @@
+from typing import Literal
+
 from pydantic import BaseModel, Field
+
+Subject = Literal["math", "english"]
 
 
 class ProblemRequest(BaseModel):
-    subject: str = Field(min_length=1, max_length=50)
+    subject: Subject
     count: int = Field(ge=1, le=20)
+    exclude_question_ids: list[int] = Field(default_factory=list, max_length=200)
 
 
 class SubmitAnswerRequest(BaseModel):

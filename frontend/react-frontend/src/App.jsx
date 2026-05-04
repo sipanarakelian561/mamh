@@ -21,6 +21,7 @@ import TeacherClassroom from "./pages/teacher/Classroom.jsx";
 import TeacherChangePassword from "./pages/teacher/ChangePassword.jsx";
 import AdminOverview from "./pages/admin/Overview.jsx";
 import AdminChangePassword from "./pages/admin/ChangePassword.jsx";
+import AdminChangeStudentPassword from "./pages/admin/ChangeStudentPassword.jsx";
 
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import VerifyCode from "./pages/VerifyCode.jsx";
@@ -68,6 +69,7 @@ export default function App() {
                   <Route index element={<Navigate to="overview" replace />} />
                   <Route path="overview" element={<AdminOverview />} />
                   <Route path="password" element={<AdminChangePassword />} />
+                  <Route path="student-password" element={<AdminChangeStudentPassword />} />
                 </Route>
               </Route>
             </Route>

@@ -222,7 +222,7 @@ def student_inventory(
     student: User = Depends(require_student),
 ):
     inv = list_items(db, student.id)
-    return [
+    rows = [
         {
             "item_id": i.item_id,
             "name": i.name,
@@ -231,6 +231,24 @@ def student_inventory(
         }
         for i in inv
     ]
+
+    starter_monster = (student.starter_monster or "").strip().lower()
+    starter_present = any(
+        row["slot"] == "character" and str(row["item_id"]).strip().lower() == starter_monster
+        for row in rows
+    )
+    if starter_monster != "" and not starter_present:
+        rows.insert(
+            0,
+            {
+                "item_id": starter_monster,
+                "name": starter_monster.capitalize(),
+                "slot": "character",
+                "equipped": (student.equipped_monster or "").strip().lower() == starter_monster,
+            },
+        )
+
+    return rows
 
 
 @router.post("/inventory/equip")

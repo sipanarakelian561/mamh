@@ -8,8 +8,13 @@ export default function TeacherClassrooms() {
   const [name, setName] = useState("");
   const [grade, setGrade] = useState(3);
   const [subject, setSubject] = useState("math");
+  const [editingRoomId, setEditingRoomId] = useState(null);
+  const [editName, setEditName] = useState("");
+  const [editGrade, setEditGrade] = useState(3);
+  const [editSubject, setEditSubject] = useState("math");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
 
   async function loadClassrooms() {
     setError("");
@@ -49,6 +54,63 @@ export default function TeacherClassrooms() {
     }
   }
 
+  function startEditing(room) {
+    setEditingRoomId(room.id);
+    setEditName(room.name);
+    setEditGrade(room.grade);
+    setEditSubject(room.subject);
+  }
+
+  function cancelEditing() {
+    setEditingRoomId(null);
+    setEditName("");
+    setEditGrade(3);
+    setEditSubject("math");
+  }
+
+  async function handleUpdate(roomId) {
+    setError("");
+    setActionLoading(true);
+    try {
+      const updated = await apiFetch(`/teacher/classrooms/${roomId}`, {
+        method: "PATCH",
+        token,
+        body: JSON.stringify({
+          name: editName,
+          grade: Number(editGrade),
+          subject: editSubject,
+        }),
+      });
+      setClassrooms((prev) =>
+        prev.map((room) => (room.id === roomId ? { ...room, ...updated } : room))
+      );
+      cancelEditing();
+    } catch (err) {
+      setError(err.message || "Failed to update classroom.");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
+  async function handleDelete(roomId) {
+    setError("");
+    setActionLoading(true);
+    try {
+      await apiFetch(`/teacher/classrooms/${roomId}`, {
+        method: "DELETE",
+        token,
+      });
+      setClassrooms((prev) => prev.filter((room) => room.id !== roomId));
+      if (editingRoomId === roomId) {
+        cancelEditing();
+      }
+    } catch (err) {
+      setError(err.message || "Failed to delete classroom.");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="text-3xl font-extrabold">Classrooms</div>
@@ -85,9 +147,7 @@ export default function TeacherClassrooms() {
               className="w-full p-3 border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
             >
               <option value="math">Math</option>
-              <option value="science">Science</option>
-              <option value="reading">Reading</option>
-              <option value="writing">Writing</option>
+              <option value="english">English</option>
             </select>
           </div>
           <button
@@ -109,13 +169,83 @@ export default function TeacherClassrooms() {
             {classrooms.map((room) => (
               <li key={room.id} className="rounded-xl border p-4 flex flex-col gap-3">
                 <div className="flex flex-wrap items-center justify-between gap-4">
-                  <span className="text-lg font-semibold">{room.name}</span>
-                  <span className="text-sm text-gray-600">
-                    Grade {room.grade} • {room.subject}
-                  </span>
+                  {editingRoomId === room.id ? (
+                    <div className="grid w-full gap-3 sm:grid-cols-3">
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="w-full p-3 border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <input
+                        type="number"
+                        min={1}
+                        max={12}
+                        value={editGrade}
+                        onChange={(e) => setEditGrade(e.target.value)}
+                        className="w-full p-3 border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <select
+                        value={editSubject}
+                        onChange={(e) => setEditSubject(e.target.value)}
+                        className="w-full p-3 border border-blue-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      >
+                        <option value="math">Math</option>
+                        <option value="english">English</option>
+                      </select>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="text-lg font-semibold">{room.name}</span>
+                      <span className="text-sm text-gray-600">
+                        Grade {room.grade} • {room.subject}
+                      </span>
+                    </>
+                  )}
                 </div>
                 <div className="rounded-xl border border-green-200 bg-green-50 p-3 text-sm text-green-800">
                   Join code: <span className="font-mono font-bold">{room.join_code}</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {editingRoomId === room.id ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => handleUpdate(room.id)}
+                        disabled={actionLoading}
+                        className="rounded-xl px-4 py-2 text-sm font-semibold border border-blue-300 hover:bg-blue-500 hover:text-white transition disabled:opacity-60"
+                      >
+                        {actionLoading ? "Saving..." : "Save"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={cancelEditing}
+                        disabled={actionLoading}
+                        className="rounded-xl px-4 py-2 text-sm font-semibold border border-gray-300 hover:bg-gray-100 transition disabled:opacity-60"
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => startEditing(room)}
+                        disabled={actionLoading}
+                        className="rounded-xl px-4 py-2 text-sm font-semibold border border-blue-300 hover:bg-blue-500 hover:text-white transition disabled:opacity-60"
+                      >
+                        Update
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(room.id)}
+                        disabled={actionLoading}
+                        className="rounded-xl px-4 py-2 text-sm font-semibold border border-red-300 text-red-600 hover:bg-red-500 hover:text-white transition disabled:opacity-60"
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
                 </div>
                 <div className="text-sm text-gray-600">
                   Students: {room.members?.length ?? 0}

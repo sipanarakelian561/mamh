@@ -1,1 +1,18 @@
-[]
+[{ "grade": 2, "subject": "English", "difficulty": "easy", "prompt": "What is the past tense of 'go'?", "answers": ["goed", "gone", "went", "going"], "correct_index": 2, "active": true },
+  { "grade": 2, "subject": "English", "difficulty": "easy", "prompt": "Which is a proper noun?", "answers": ["city", "London", "dog", "book"], "correct_index": 1, "active": true },
+  { "grade": 2, "subject": "English", "difficulty": "easy", "prompt": "What is the plural of 'cat'?", "answers": ["cates", "cats", "caties", "cat's"], "correct_index": 1, "active": true },
+  { "grade": 2, "subject": "English", "difficulty": "easy", "prompt": "Which is an adjective?", "answers": ["run", "happy", "eat", "book"], "correct_index": 1, "active": true },
+  { "grade": 2, "subject": "English", "difficulty": "easy", "prompt": "Identify the verb in: 'She sings loudly.'", "answers": ["She", "sings", "loudly", "none"], "correct_index": 1, "active": true },
+  { "grade": 2, "subject": "English", "difficulty": "easy", "prompt": "Which word is misspelled?", "answers": ["tree", "blue", "skool", "fast"], "correct_index": 2, "active": true },
+  { "grade": 2, "subject": "English", "difficulty": "easy", "prompt": "What does 'don't' stand for?", "answers": ["do not", "does not", "did not", "do it"], "correct_index": 0, "active": true },
+  { "grade": 2, "subject": "English", "difficulty": "easy", "prompt": "Which is a compound word?", "answers": ["cat", "dog", "sunflower", "run"], "correct_index": 2, "active": true },
+  { "grade": 2, "subject": "English", "difficulty": "easy", "prompt": "Which is a synonym for 'fast'?", "answers": ["slow", "quick", "lazy", "tall"], "correct_index": 1, "active": true },
+  { "grade": 2, "subject": "English", "difficulty": "easy", "prompt": "Which word uses 'an' correctly?", "answers": ["an dog", "an cat", "an apple", "an boy"], "correct_index": 2, "active": true },
+  { "grade": 2, "subject": "English", "difficulty": "easy", "prompt": "Identify the noun in: 'The dog barks.'", "answers": ["The", "dog", "barks", "none"], "correct_index": 1, "active": true },
+  { "grade": 2, "subject": "English", "difficulty": "easy", "prompt": "Which is a preposition?", "answers": ["in", "happy", "eat", "book"], "correct_index": 0, "active": true },
+  { "grade": 2, "subject": "English", "difficulty": "easy", "prompt": "What is the past tense of 'run'?", "answers": ["runned", "ran", "running", "run"], "correct_index": 1, "active": true },
+  { "grade": 2, "subject": "English", "difficulty": "easy", "prompt": "Which word is an antonym for 'hot'?", "answers": ["cold", "warm", "cool", "heat"], "correct_index": 0, "active": true },
+  { "grade": 2, "subject": "English", "difficulty": "easy", "prompt": "'She is taller than him.' What does 'taller' mean?", 
+    "answers": ["shorter", "more tall", "tallest", "'taller' is not a word"], "correct_index": 1, "active": true 
+    }
+]
