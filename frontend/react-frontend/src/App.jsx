@@ -23,6 +23,10 @@ import TeacherChangePassword from "./pages/teacher/ChangePassword.jsx";
 import AdminOverview from "./pages/admin/Overview.jsx";
 import AdminChangePassword from "./pages/admin/ChangePassword.jsx";
 
+import ForgotPassword from "./pages/ForgotPassword.jsx";
+import VerifyCode from "./pages/VerifyCode.jsx";
+import ResetPassword from "./pages/ResetPassword.jsx";
+
 export default function App() {
   return (
     <AuthProvider>
@@ -32,6 +36,10 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/verify-code" element={<VerifyCode />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
 
             <Route element={<ProtectedRoute />}>
               <Route element={<RoleRoute role="student" />}>

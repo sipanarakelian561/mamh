@@ -136,10 +136,11 @@ export default function LogIn() {
           <div className="flex gap-2 items-center">
             <button
               type="button"
+              onClick={() => navigate("/forgot-password")}
               className="text-white hover:text-blue-200 hover:underline"
-            >
-              Forgot password
-            </button>
+    >
+        Forgot password
+          </button>
           </div>
         )}
       </form>

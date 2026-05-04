@@ -1,50 +1,67 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { requestPasswordReset } from "../api/auth";
+import homeBackground from "../assets/mamh_homescreen.jpeg";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
   const navigate = useNavigate();
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
+    setError("");
+    setMessage("");
 
-    if (!email) {
-      alert("Please enter your email.");
-      return;
+    try {
+      await requestPasswordReset(email);
+
+      sessionStorage.setItem("resetEmail", email);
+
+      navigate("/verify-code");
+    } catch (err) {
+      setError(err.message);
     }
-
-    navigate("/verify-code", { state: { email } });
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-4">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4 items-center w-full max-w-md">
-        <h1 className="text-4xl font-extrabold pb-2">Forgot Password</h1>
+    <div className="relative min-h-screen">
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `url(${homeBackground})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      />
+      <div className="absolute inset-0 bg-black/35" />
 
-        <input
-          type="email"
-          placeholder="Enter your account email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="w-full p-3 border border-blue-300 rounded-xl"
-        />
-
-        <button
-          type="submit"
-          className="w-full rounded-xl px-8 py-4 text-lg font-semibold border border-blue-300 hover:bg-blue-500 hover:text-white transition"
+      <div className="relative z-10 flex items-center justify-center min-h-screen">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-4 w-full max-w-md p-8 bg-white/10 backdrop-blur-md rounded-2xl border border-white/30"
         >
-          Send Verification Code
-        </button>
+          <h1 className="text-white text-3xl font-bold">Forgot Password</h1>
 
-        <button
-          type="button"
-          onClick={() => navigate("/login")}
-          className="text-blue-600 hover:underline"
-        >
-          Back to Login
-        </button>
-      </form>
+          {error && <div className="text-red-400">{error}</div>}
+          {message && <div className="text-green-400">{message}</div>}
+
+          <input
+            type="email"
+            placeholder="Enter your email"
+            className="p-3 rounded-xl bg-white/10 text-white"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+
+          <button className="bg-blue-500 text-white p-3 rounded-xl">
+            Send Code
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

@@ -1,41 +1,64 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { verifyResetCode } from "../api/auth";
+import homeBackground from "../assets/mamh_homescreen.jpeg";
 
 export default function VerifyCode() {
   const [code, setCode] = useState("");
-  const location = useLocation();
-  const email = location.state?.email || "";
+  const [error, setError] = useState("");
 
-  function handleSubmit(e) {
+  const navigate = useNavigate();
+  const email = sessionStorage.getItem("resetEmail");
+
+  async function handleSubmit(e) {
     e.preventDefault();
-    alert("Verification code submitted: " + code);
+    setError("");
+
+    try {
+      await verifyResetCode(email, code);
+
+      sessionStorage.setItem("resetCode", code);
+
+      navigate("/reset-password");
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-4">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4 items-center w-full max-w-md">
-        <h1 className="text-4xl font-extrabold pb-2">Verify Code</h1>
+    <div className="relative min-h-screen">
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `url(${homeBackground})`,
+          backgroundSize: "cover",
+        }}
+      />
+      <div className="absolute inset-0 bg-black/35" />
 
-        <p className="text-gray-600 text-sm text-center">
-          Enter the code sent to {email}
-        </p>
-
-        <input
-          type="text"
-          placeholder="Verification Code"
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          required
-          className="w-full p-3 border border-blue-300 rounded-xl"
-        />
-
-        <button
-          type="submit"
-          className="w-full rounded-xl px-8 py-4 text-lg font-semibold border border-blue-300 hover:bg-blue-500 hover:text-white transition"
+      <div className="relative z-10 flex items-center justify-center min-h-screen">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-4 w-full max-w-md p-8 bg-white/10 backdrop-blur-md rounded-2xl"
         >
-          Verify Code
-        </button>
-      </form>
+          <h1 className="text-white text-3xl font-bold">Enter Code</h1>
+
+          {error && <div className="text-red-400">{error}</div>}
+
+          <input
+            type="text"
+            placeholder="6-digit code"
+            className="p-3 rounded-xl bg-white/10 text-white"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            required
+          />
+
+          <button className="bg-blue-500 text-white p-3 rounded-xl">
+            Verify Code
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
