@@ -11,14 +11,95 @@ from app.models.assignment_completion import AssignmentCompletion
 from app.models.quiz_completion import QuizCompletion
 from app.models.classroom import Classroom
 from app.models.classroom_membership import ClassroomMembership
+from app.models.questions import GameplayQuestion
 from app.models.quiz import Quiz, QuizQuestion
 from app.models.user import User
 from app.schemas.assignment import AssignmentCreate
 from app.schemas.classroom import ClassroomCreate
+from app.schemas.question_bank import QuestionBankCreate, QuestionBankUpdate
 from app.schemas.quiz import QuizCreate
 from app.services.progress_service import build_progress_snapshot
 
 router = APIRouter(prefix="/teacher", tags=["teacher"])
+
+
+def _question_bank_out(question: GameplayQuestion) -> dict:
+    return {
+        "id": question.id,
+        "teacher_id": question.teacher_id,
+        "grade": question.grade,
+        "subject": question.subject,
+        "difficulty": question.difficulty,
+        "prompt": question.prompt,
+        "answers": [
+            question.answer_a,
+            question.answer_b,
+            question.answer_c,
+            question.answer_d,
+        ],
+        "correct_index": question.correct_index,
+        "active": question.active,
+    }
+
+
+def _quiz_question_out(question: QuizQuestion) -> dict:
+    answers = [question.answer_a, question.answer_b, question.answer_c, question.answer_d]
+    return {
+        "id": question.id,
+        "order_index": question.order_index,
+        "prompt": question.prompt,
+        "answers": answers,
+        "correct_index": question.correct_index,
+    }
+
+
+def _bootstrap_teacher_question_bank(db: Session, teacher: User) -> None:
+    taught_pairs = {
+        (classroom.grade, classroom.subject.lower())
+        for classroom in db.query(Classroom).filter(Classroom.teacher_id == teacher.id).all()
+    }
+    if not taught_pairs:
+        return
+
+    for grade, subject in taught_pairs:
+        existing = (
+            db.query(GameplayQuestion.id)
+            .filter(
+                GameplayQuestion.teacher_id == teacher.id,
+                GameplayQuestion.grade == grade,
+                GameplayQuestion.subject == subject,
+            )
+            .first()
+        )
+        if existing:
+            continue
+
+        defaults = (
+            db.query(GameplayQuestion)
+            .filter(
+                GameplayQuestion.teacher_id.is_(None),
+                GameplayQuestion.grade == grade,
+                GameplayQuestion.subject == subject,
+            )
+            .all()
+        )
+        for default in defaults:
+            db.add(
+                GameplayQuestion(
+                    teacher_id=teacher.id,
+                    grade=default.grade,
+                    subject=default.subject,
+                    difficulty=default.difficulty,
+                    prompt=default.prompt,
+                    answer_a=default.answer_a,
+                    answer_b=default.answer_b,
+                    answer_c=default.answer_c,
+                    answer_d=default.answer_d,
+                    correct_index=default.correct_index,
+                    active=default.active,
+                )
+            )
+    db.commit()
 
 
 def _generate_join_code(db: Session) -> str:
@@ -291,7 +372,12 @@ def create_quiz(
                 quiz_id=quiz.id,
                 order_index=idx,
                 prompt=question.prompt,
-                answer=(question.answer or "").strip(),
+                answer_a=question.answers[0].strip(),
+                answer_b=question.answers[1].strip(),
+                answer_c=question.answers[2].strip(),
+                answer_d=question.answers[3].strip(),
+                correct_index=question.correct_index,
+                answer=question.answers[question.correct_index].strip(),
             )
         )
 
@@ -314,13 +400,7 @@ def create_quiz(
         "title": quiz.title,
         "created_at": quiz.created_at,
         "questions": [
-            {
-                "id": q.id,
-                "order_index": q.order_index,
-                "prompt": q.prompt,
-                "answer": q.answer,
-            }
-            for q in questions
+            _quiz_question_out(q) for q in questions
         ],
     }
 
@@ -360,15 +440,171 @@ def list_teacher_quizzes(
                 "title": quiz.title,
                 "created_at": quiz.created_at,
                 "questions": [
-                    {
-                        "id": q.id,
-                        "order_index": q.order_index,
-                        "prompt": q.prompt,
-                        "answer": q.answer,
-                    }
-                    for q in questions
+                    _quiz_question_out(q) for q in questions
                 ],
             }
         )
 
     return out
+
+
+@router.patch("/quizzes/{quiz_id}")
+def update_quiz(
+    quiz_id: int,
+    payload: QuizCreate,
+    db: Session = Depends(get_db),
+    teacher: User = Depends(require_teacher),
+):
+    quiz = db.query(Quiz).filter(Quiz.id == quiz_id, Quiz.teacher_id == teacher.id).first()
+    if not quiz:
+        raise HTTPException(status_code=404, detail="Quiz not found")
+
+    classroom = _get_teacher_classroom(db, teacher.id, payload.classroom_id)
+    quiz.classroom_id = classroom.id
+    quiz.grade = classroom.grade
+    quiz.subject = classroom.subject
+    quiz.title = payload.title
+
+    db.query(QuizQuestion).filter(QuizQuestion.quiz_id == quiz.id).delete()
+    db.flush()
+
+    for idx, question in enumerate(payload.questions, start=1):
+        db.add(
+            QuizQuestion(
+                quiz_id=quiz.id,
+                order_index=idx,
+                prompt=question.prompt,
+                answer_a=question.answers[0].strip(),
+                answer_b=question.answers[1].strip(),
+                answer_c=question.answers[2].strip(),
+                answer_d=question.answers[3].strip(),
+                correct_index=question.correct_index,
+                answer=question.answers[question.correct_index].strip(),
+            )
+        )
+
+    db.commit()
+    db.refresh(quiz)
+
+    questions = (
+        db.query(QuizQuestion)
+        .filter(QuizQuestion.quiz_id == quiz.id)
+        .order_by(QuizQuestion.order_index.asc())
+        .all()
+    )
+
+    return {
+        "id": quiz.id,
+        "classroom_id": quiz.classroom_id,
+        "classroom_name": classroom.name,
+        "grade": quiz.grade,
+        "subject": quiz.subject,
+        "title": quiz.title,
+        "created_at": quiz.created_at,
+        "questions": [_quiz_question_out(q) for q in questions],
+    }
+
+
+@router.get("/question-bank")
+def list_question_bank(
+    grade: int | None = None,
+    subject: str | None = None,
+    db: Session = Depends(get_db),
+    teacher: User = Depends(require_teacher),
+):
+    _bootstrap_teacher_question_bank(db, teacher)
+    query = db.query(GameplayQuestion).filter(GameplayQuestion.teacher_id == teacher.id)
+    if grade is not None:
+        query = query.filter(GameplayQuestion.grade == grade)
+    if subject:
+        query = query.filter(GameplayQuestion.subject == subject.lower())
+    rows = (
+        query.order_by(
+            GameplayQuestion.grade.asc(),
+            GameplayQuestion.subject.asc(),
+            GameplayQuestion.id.desc(),
+        ).all()
+    )
+    return [_question_bank_out(row) for row in rows]
+
+
+@router.post("/question-bank")
+def create_question_bank_question(
+    payload: QuestionBankCreate,
+    db: Session = Depends(get_db),
+    teacher: User = Depends(require_teacher),
+):
+    question = GameplayQuestion(
+        teacher_id=teacher.id,
+        grade=payload.grade,
+        subject=payload.subject.lower(),
+        difficulty=payload.difficulty.lower(),
+        prompt=payload.prompt,
+        answer_a=payload.answers[0],
+        answer_b=payload.answers[1],
+        answer_c=payload.answers[2],
+        answer_d=payload.answers[3],
+        correct_index=payload.correct_index,
+        active=payload.active,
+    )
+    db.add(question)
+    db.commit()
+    db.refresh(question)
+    return _question_bank_out(question)
+
+
+@router.patch("/question-bank/{question_id}")
+def update_question_bank_question(
+    question_id: int,
+    payload: QuestionBankUpdate,
+    db: Session = Depends(get_db),
+    teacher: User = Depends(require_teacher),
+):
+    question = (
+        db.query(GameplayQuestion)
+        .filter(GameplayQuestion.id == question_id, GameplayQuestion.teacher_id == teacher.id)
+        .first()
+    )
+    if not question:
+        raise HTTPException(status_code=404, detail="Question not found")
+
+    if payload.grade is not None:
+        question.grade = payload.grade
+    if payload.subject is not None:
+        question.subject = payload.subject.lower()
+    if payload.difficulty is not None:
+        question.difficulty = payload.difficulty.lower()
+    if payload.prompt is not None:
+        question.prompt = payload.prompt
+    if payload.answers is not None:
+        question.answer_a = payload.answers[0]
+        question.answer_b = payload.answers[1]
+        question.answer_c = payload.answers[2]
+        question.answer_d = payload.answers[3]
+    if payload.correct_index is not None:
+        question.correct_index = payload.correct_index
+    if payload.active is not None:
+        question.active = payload.active
+
+    db.commit()
+    db.refresh(question)
+    return _question_bank_out(question)
+
+
+@router.delete("/question-bank/{question_id}")
+def delete_question_bank_question(
+    question_id: int,
+    db: Session = Depends(get_db),
+    teacher: User = Depends(require_teacher),
+):
+    question = (
+        db.query(GameplayQuestion)
+        .filter(GameplayQuestion.id == question_id, GameplayQuestion.teacher_id == teacher.id)
+        .first()
+    )
+    if not question:
+        raise HTTPException(status_code=404, detail="Question not found")
+
+    db.delete(question)
+    db.commit()
+    return {"deleted": True, "id": question_id}

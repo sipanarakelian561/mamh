@@ -11,12 +11,11 @@ import StudentLayout from "./layouts/Studentlayout.jsx";
 import TeacherLayout from "./layouts/Teacherlayout.jsx";
 import AdminLayout from "./layouts/AdminLayout.jsx";
 import StudentOverview from "./pages/student/Overview.jsx";
-import StudentAssignments from "./pages/student/Assignments.jsx";
 import StudentQuizzes from "./pages/student/Quizzes.jsx";
 import StudentPlay from "./pages/student/Play.jsx";
 import StudentJoin from "./pages/student/Join.jsx";
 import TeacherOverview from "./pages/teacher/Overview.jsx";
-import TeacherAssignments from "./pages/teacher/Assignments.jsx";
+import TeacherQuestionBank from "./pages/teacher/QuestionBank.jsx";
 import TeacherQuizzes from "./pages/teacher/Quizzes.jsx";
 import TeacherClassroom from "./pages/teacher/Classroom.jsx";
 import TeacherChangePassword from "./pages/teacher/ChangePassword.jsx";
@@ -46,7 +45,6 @@ export default function App() {
                 <Route path="/student" element={<StudentLayout />}>
                   <Route index element={<Navigate to="overview" replace />} />
                   <Route path="overview" element={<StudentOverview />} />
-                  <Route path="assignments" element={<StudentAssignments />} />
                   <Route path="quizzes" element={<StudentQuizzes />} />
                   <Route path="play" element={<StudentPlay />} />
                   <Route path="join" element={<StudentJoin />} />
@@ -57,7 +55,7 @@ export default function App() {
                 <Route path="/teacher" element={<TeacherLayout />}>
                   <Route index element={<Navigate to="overview" replace />} />
                   <Route path="overview" element={<TeacherOverview />} />
-                  <Route path="assignments" element={<TeacherAssignments />} />
+                  <Route path="question-bank" element={<TeacherQuestionBank />} />
                   <Route path="quizzes" element={<TeacherQuizzes />} />
                   <Route path="classrooms" element={<TeacherClassroom />} />
                   <Route path="password" element={<TeacherChangePassword />} />

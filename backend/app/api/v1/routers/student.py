@@ -380,6 +380,11 @@ def list_quizzes(
     out = []
     for quiz in quizzes:
         question_count = db.query(QuizQuestion).filter(QuizQuestion.quiz_id == quiz.id).count()
+        completion = (
+            db.query(QuizCompletion)
+            .filter(QuizCompletion.quiz_id == quiz.id, QuizCompletion.student_id == student.id)
+            .first()
+        )
         out.append(
             {
                 "id": quiz.id,
@@ -390,6 +395,8 @@ def list_quizzes(
                 "title": quiz.title,
                 "created_at": quiz.created_at,
                 "question_count": question_count,
+                "completed": completion is not None,
+                "completed_at": completion.completed_at if completion else None,
             }
         )
 
@@ -432,6 +439,7 @@ def get_quiz(
                 "id": q.id,
                 "order_index": q.order_index,
                 "prompt": q.prompt,
+                "answers": [q.answer_a, q.answer_b, q.answer_c, q.answer_d],
             }
             for q in questions
         ],
@@ -464,9 +472,12 @@ def submit_quiz_answers(
         if not question:
             continue
 
-        expected = (question.answer or "").strip().lower()
-        given = submitted.answer.strip().lower()
-        is_correct = bool(expected) and expected == given
+        if submitted.selected_index is not None:
+            is_correct = int(submitted.selected_index) == int(question.correct_index or -1)
+        else:
+            expected = (question.answer or "").strip().lower()
+            given = (submitted.answer or "").strip().lower()
+            is_correct = bool(expected) and expected == given
         if is_correct:
             correct_count += 1
 
@@ -474,6 +485,7 @@ def submit_quiz_answers(
             {
                 "question_id": question.id,
                 "prompt": question.prompt,
+                "selected_index": submitted.selected_index,
                 "submitted_answer": submitted.answer,
                 "correct": is_correct,
             }

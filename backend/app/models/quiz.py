@@ -26,3 +26,9 @@ class QuizQuestion(Base):
     order_index: Mapped[int] = mapped_column(Integer)
     prompt: Mapped[str] = mapped_column(Text)
     answer: Mapped[str | None] = mapped_column(Text, nullable=True)
+    answer_a: Mapped[str | None] = mapped_column(Text, nullable=True)
+    answer_b: Mapped[str | None] = mapped_column(Text, nullable=True)
+    answer_c: Mapped[str | None] = mapped_column(Text, nullable=True)
+    answer_d: Mapped[str | None] = mapped_column(Text, nullable=True)
+    correct_index: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    

@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 function Card({ title, children }) {
   return (
     <div className="rounded-2xl border p-5">
-      <div className="text-xl font-bold mb-3">{title}</div>
+      <div className="mb-3 text-xl font-bold">{title}</div>
       {children}
     </div>
   );
@@ -15,28 +15,18 @@ function Card({ title, children }) {
 export default function Overview() {
   const { token } = useAuth();
   const navigate = useNavigate();
-  const [assignments, setAssignments] = useState([]);
   const [quizzes, setQuizzes] = useState([]);
   const [err, setErr] = useState("");
 
   useEffect(() => {
-    // Replace endpoints once you confirm them
     async function load() {
       try {
         setErr("");
-        // mock fallback if endpoints not ready
-        const a = await apiFetch("/student/assignments", { token, method: "GET" });
         const q = await apiFetch("/student/quizzes", { token, method: "GET" });
-        setAssignments(Array.isArray(a) ? a : []);
         setQuizzes(Array.isArray(q) ? q : []);
       } catch (e) {
-        // fallback mock data so UI still works
-        setErr(e.message);
-        setAssignments([
-          { id: 1, title: "Addition Practice", dueDate: "2026-02-20", status: "due" },
-          { id: 2, title: "Subtraction Drill", dueDate: "2026-02-22", status: "due" },
-        ]);
-        setQuizzes([{ id: 11, title: "Week 3 Quiz", topic: "Math", status: "assigned" }]);
+        setErr(e.message || "Could not load quizzes.");
+        setQuizzes([]);
       }
     }
     load();
@@ -46,51 +36,46 @@ export default function Overview() {
     <div className="flex flex-col gap-6">
       <button
         onClick={() => navigate("/student/play")}
-        className="rounded-2xl px-8 py-6 text-2xl font-extrabold border border-blue-300 hover:bg-blue-500 hover:text-white transition w-full sm:w-fit"
+        className="w-full rounded-2xl border border-blue-300 px-8 py-6 text-2xl font-extrabold transition hover:bg-blue-500 hover:text-white sm:w-fit"
       >
         Play Game
       </button>
 
       {err ? (
         <div className="rounded-xl border p-4 text-sm text-slate-800">
-          Backend not connected yet: <span className="font-semibold">{err}</span>
-          <div className="text-xs mt-1">Showing sample data for now.</div>
+          {err}
         </div>
       ) : null}
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <Card title="My Assignments">
-          <ul className="flex flex-col gap-3">
-            {assignments.slice(0, 5).map((a) => (
-              <li key={a.id} className="rounded-xl border p-3">
-                <div className="text-lg font-semibold">{a.title}</div>
-                {a.dueDate ? <div className="text-sm">Due: {a.dueDate}</div> : null}
-              </li>
-            ))}
-          </ul>
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card title="My Quizzes">
+          {quizzes.length === 0 ? (
+            <div className="text-sm text-slate-600">No quizzes assigned yet.</div>
+          ) : (
+            <ul className="flex flex-col gap-3">
+              {quizzes.slice(0, 5).map((quiz) => (
+                <li key={quiz.id} className="rounded-xl border p-3">
+                  <div className="text-lg font-semibold">{quiz.title}</div>
+                  <div className="text-sm text-slate-600">
+                    {quiz.classroom_name} • Grade {quiz.grade} {quiz.subject}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
           <button
-            onClick={() => navigate("/student/assignments")}
-            className="mt-4 rounded-xl px-4 py-3 text-lg font-semibold border border-blue-300 hover:bg-blue-500 hover:text-white transition"
+            onClick={() => navigate("/student/quizzes")}
+            className="mt-4 rounded-xl border border-blue-300 px-4 py-3 text-lg font-semibold transition hover:bg-blue-500 hover:text-white"
           >
             View all
           </button>
         </Card>
 
-        <Card title="My Quizzes">
-          <ul className="flex flex-col gap-3">
-            {quizzes.slice(0, 5).map((q) => (
-              <li key={q.id} className="rounded-xl border p-3">
-                <div className="text-lg font-semibold">{q.title}</div>
-                {q.topic ? <div className="text-sm">Topic: {q.topic}</div> : null}
-              </li>
-            ))}
-          </ul>
-          <button
-            onClick={() => navigate("/student/quizzes")}
-            className="mt-4 rounded-xl px-4 py-3 text-lg font-semibold border border-blue-300 hover:bg-blue-500 hover:text-white transition"
-          >
-            View all
-          </button>
+        <Card title="Game Flow">
+          <div className="space-y-3 text-slate-700">
+            <p>Use Play Game for grade-based practice from your classroom question bank.</p>
+            <p>Use Quizzes to launch teacher-assigned quizzes directly in the game.</p>
+          </div>
         </Card>
       </div>
     </div>

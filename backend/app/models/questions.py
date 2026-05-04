@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Integer, String, Text
+from sqlalchemy import Boolean, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
@@ -8,6 +8,7 @@ class GameplayQuestion(Base):
     __tablename__ = "gameplay_questions"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    teacher_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), index=True, nullable=True)
     grade: Mapped[int] = mapped_column(Integer, index=True)
     subject: Mapped[str] = mapped_column(String(50), index=True)
     difficulty: Mapped[str] = mapped_column(String(20), default="easy", index=True)

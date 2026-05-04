@@ -3,7 +3,10 @@ from sqlalchemy.orm import Session
 
 from app.api.v1.deps.auth import require_student
 from app.db.session import get_db
+from app.models.classroom import Classroom
+from app.models.classroom_membership import ClassroomMembership
 from app.models.questions import GameplayQuestion
+from app.models.quiz import Quiz, QuizQuestion
 from app.models.user import User
 from app.schemas.gameplay import GameResultRequest, GameResultResponse, ProblemRequest, SubmitAnswerRequest
 from app.services.economy_service import award_game_placement
@@ -11,6 +14,21 @@ from app.services.gameplay_service import check_answer, get_random_questions
 from app.services.progress_service import award_for_correct
 
 router = APIRouter(prefix="/game", tags=["gameplay"])
+
+
+def _teacher_ids_for_student_subject(db: Session, student_id: int, grade_level: int, subject: str) -> list[int]:
+    rows = (
+        db.query(Classroom.teacher_id)
+        .join(ClassroomMembership, ClassroomMembership.classroom_id == Classroom.id)
+        .filter(
+            ClassroomMembership.student_id == student_id,
+            Classroom.grade == grade_level,
+            Classroom.subject == subject.lower(),
+        )
+        .distinct()
+        .all()
+    )
+    return [teacher_id for (teacher_id,) in rows]
 
 
 @router.post("/questions")
@@ -27,6 +45,7 @@ def get_questions(
         grade=student.grade_level,
         subject=payload.subject,
         count=payload.count,
+        teacher_ids=_teacher_ids_for_student_subject(db, student.id, student.grade_level, payload.subject),
     )
     if not questions:
         raise HTTPException(status_code=404, detail="No active questions found for this grade and subject")
@@ -77,6 +96,89 @@ def submit_answer(
         }
 
     return {"correct": False}
+
+
+@router.get("/quiz/{quiz_id}")
+def get_quiz_for_gameplay(
+    quiz_id: int,
+    db: Session = Depends(get_db),
+    student: User = Depends(require_student),
+):
+    quiz = db.query(Quiz).filter(Quiz.id == quiz_id).first()
+    if not quiz:
+        raise HTTPException(status_code=404, detail="Quiz not found")
+
+    assigned = (
+        db.query(ClassroomMembership.id)
+        .filter(
+            ClassroomMembership.classroom_id == quiz.classroom_id,
+            ClassroomMembership.student_id == student.id,
+        )
+        .first()
+    )
+    if not assigned:
+        raise HTTPException(status_code=403, detail="Quiz is not assigned to this student")
+
+    questions = (
+        db.query(QuizQuestion)
+        .filter(QuizQuestion.quiz_id == quiz.id)
+        .order_by(QuizQuestion.order_index.asc())
+        .all()
+    )
+
+    return {
+        "id": quiz.id,
+        "title": quiz.title,
+        "grade": quiz.grade,
+        "subject": quiz.subject,
+        "questions": [
+            {
+                "id": q.id,
+                "order_index": q.order_index,
+                "prompt": q.prompt,
+                "answers": [q.answer_a, q.answer_b, q.answer_c, q.answer_d],
+            }
+            for q in questions
+        ],
+    }
+
+
+@router.post("/quiz-answer")
+def submit_single_quiz_answer(
+    payload: dict,
+    db: Session = Depends(get_db),
+    student: User = Depends(require_student),
+):
+    quiz_id = int(payload.get("quiz_id", 0))
+    question_id = int(payload.get("question_id", 0))
+    selected_index = int(payload.get("selected_index", -1))
+    if quiz_id < 1 or question_id < 1:
+        raise HTTPException(status_code=400, detail="Invalid quiz answer payload")
+
+    quiz = db.query(Quiz).filter(Quiz.id == quiz_id).first()
+    if not quiz:
+        raise HTTPException(status_code=404, detail="Quiz not found")
+
+    assigned = (
+        db.query(ClassroomMembership.id)
+        .filter(
+            ClassroomMembership.classroom_id == quiz.classroom_id,
+            ClassroomMembership.student_id == student.id,
+        )
+        .first()
+    )
+    if not assigned:
+        raise HTTPException(status_code=403, detail="Quiz is not assigned to this student")
+
+    question = (
+        db.query(QuizQuestion)
+        .filter(QuizQuestion.id == question_id, QuizQuestion.quiz_id == quiz.id)
+        .first()
+    )
+    if not question:
+        raise HTTPException(status_code=404, detail="Quiz question not found")
+
+    return {"correct": selected_index == int(question.correct_index or -1)}
 
 
 @router.post("/complete-run", response_model=GameResultResponse)

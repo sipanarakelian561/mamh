@@ -30,7 +30,6 @@ export default function StudentLayout() {
       <aside className="w-72 p-4 border-r flex flex-col gap-4">
         <div className="text-2xl font-extrabold px-2">Student</div>
         <BigNav to="/student/overview" label="Overview" />
-        <BigNav to="/student/assignments" label="Assignments" />
         <BigNav to="/student/quizzes" label="Quizzes" />
         <BigNav to="/student/play" label="Play Game" />
         <BigNav to="/student/join" label="Join with code" />

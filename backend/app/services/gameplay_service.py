@@ -10,10 +10,30 @@ def get_random_questions(
     grade: int,
     subject: str,
     count: int,
+    teacher_ids: list[int] | None = None,
 ) -> list[GameplayQuestion]:
+    teacher_ids = [teacher_id for teacher_id in (teacher_ids or []) if teacher_id is not None]
+
+    if teacher_ids:
+        teacher_owned = (
+            db.query(GameplayQuestion)
+            .filter(
+                GameplayQuestion.teacher_id.in_(teacher_ids),
+                GameplayQuestion.grade == grade,
+                GameplayQuestion.subject == subject.lower(),
+                GameplayQuestion.active.is_(True),
+            )
+            .order_by(func.random())
+            .limit(max(1, min(count, 20)))
+            .all()
+        )
+        if teacher_owned:
+            return teacher_owned
+
     return (
         db.query(GameplayQuestion)
         .filter(
+            GameplayQuestion.teacher_id.is_(None),
             GameplayQuestion.grade == grade,
             GameplayQuestion.subject == subject.lower(),
             GameplayQuestion.active.is_(True),

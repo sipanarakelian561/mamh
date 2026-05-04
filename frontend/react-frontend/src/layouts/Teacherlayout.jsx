@@ -30,7 +30,7 @@ export default function TeacherLayout() {
       <aside className="w-72 p-4 border-r flex flex-col gap-4">
         <div className="text-2xl font-extrabold px-2">Teacher</div>
         <BigNav to="/teacher/overview" label="Overview" />
-        <BigNav to="/teacher/assignments" label="Assignments" />
+        <BigNav to="/teacher/question-bank" label="Question Bank" />
         <BigNav to="/teacher/quizzes" label="Quizzes" />
         <BigNav to="/teacher/classrooms" label="Classrooms" />
         <BigNav to="/teacher/password" label="Change Password" />

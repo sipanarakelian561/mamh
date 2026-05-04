@@ -20,10 +20,10 @@ export default function TeacherOverview() {
         <Card title="Quick Actions">
           <div className="flex flex-col gap-4">
             <button
-              onClick={() => navigate("/teacher/assignments")}
+              onClick={() => navigate("/teacher/question-bank")}
               className="rounded-xl px-6 py-4 text-lg font-semibold border border-blue-300 hover:bg-blue-500 hover:text-white transition"
             >
-              Create / Assign Work
+              Manage Question Bank
             </button>
             <button
               onClick={() => navigate("/teacher/quizzes")}
@@ -43,7 +43,7 @@ export default function TeacherOverview() {
         <Card title="At a Glance (mock for now)">
           <ul className="flex flex-col gap-3">
             <li className="rounded-xl border border-blue-100 p-3 text-lg text-slate-800">Active Classrooms: 2</li>
-            <li className="rounded-xl border border-blue-100 p-3 text-lg text-slate-800">Assignments Created: 5</li>
+            <li className="rounded-xl border border-blue-100 p-3 text-lg text-slate-800">Question Bank Ready</li>
             <li className="rounded-xl border border-blue-100 p-3 text-lg text-slate-800">Problem Sets: 3</li>
           </ul>
         </Card>

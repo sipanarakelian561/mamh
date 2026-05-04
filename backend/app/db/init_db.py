@@ -122,6 +122,20 @@ def _run_migrations() -> None:
         if _column_exists(conn, "users", "equipped_monster") is False:
             conn.execute(text("ALTER TABLE users ADD COLUMN equipped_monster VARCHAR(50)"))
 
+        if _column_exists(conn, "gameplay_questions", "teacher_id") is False:
+            conn.execute(text("ALTER TABLE gameplay_questions ADD COLUMN teacher_id INTEGER"))
+
+        if _column_exists(conn, "quiz_questions", "answer_a") is False:
+            conn.execute(text("ALTER TABLE quiz_questions ADD COLUMN answer_a TEXT"))
+        if _column_exists(conn, "quiz_questions", "answer_b") is False:
+            conn.execute(text("ALTER TABLE quiz_questions ADD COLUMN answer_b TEXT"))
+        if _column_exists(conn, "quiz_questions", "answer_c") is False:
+            conn.execute(text("ALTER TABLE quiz_questions ADD COLUMN answer_c TEXT"))
+        if _column_exists(conn, "quiz_questions", "answer_d") is False:
+            conn.execute(text("ALTER TABLE quiz_questions ADD COLUMN answer_d TEXT"))
+        if _column_exists(conn, "quiz_questions", "correct_index") is False:
+            conn.execute(text("ALTER TABLE quiz_questions ADD COLUMN correct_index INTEGER"))
+
 
 def _seed_gameplay_questions() -> None:
     with SessionLocal() as db:

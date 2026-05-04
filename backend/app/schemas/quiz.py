@@ -8,7 +8,8 @@ Subject = Literal["math", "science", "reading"]
 
 class QuizQuestionCreate(BaseModel):
     prompt: str = Field(min_length=1)
-    answer: str | None = None
+    answers: list[str] = Field(min_length=4, max_length=4)
+    correct_index: int = Field(ge=0, le=3)
 
 
 class QuizCreate(BaseModel):
@@ -21,7 +22,8 @@ class QuizQuestionOut(BaseModel):
     id: int
     order_index: int
     prompt: str
-    answer: str | None
+    answers: list[str]
+    correct_index: int
 
 
 class QuizOut(BaseModel):
@@ -37,7 +39,8 @@ class QuizOut(BaseModel):
 
 class QuizSubmitAnswer(BaseModel):
     question_id: int
-    answer: str
+    selected_index: int | None = Field(default=None, ge=0, le=3)
+    answer: str | None = None
 
 
 class QuizSubmitRequest(BaseModel):

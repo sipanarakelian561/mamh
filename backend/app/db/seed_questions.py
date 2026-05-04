@@ -34,6 +34,7 @@ def seed_gameplay_questions(db: Session) -> None:
         answers = q["answers"]
 
         question = GameplayQuestion(
+            teacher_id=None,
             grade=q["grade"],
             subject=str(q["subject"]).lower(),
             difficulty=q.get("difficulty", "easy"),
