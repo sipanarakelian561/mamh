@@ -31,6 +31,25 @@ def seed_gameplay_questions(db: Session) -> None:
     raw_questions = load_question_bank()
 
     for q in raw_questions:
+        if not isinstance(q, dict):
+            continue
+
+        answers = q.get("answers")
+        prompt = q.get("prompt")
+        grade = q.get("grade")
+        subject = q.get("subject")
+        correct_index = q.get("correct_index")
+
+        if (
+            not prompt
+            or grade is None
+            or not subject
+            or not isinstance(answers, list)
+            or len(answers) != 4
+            or correct_index is None
+        ):
+            continue
+
         answers = q["answers"]
 
         question = GameplayQuestion(
